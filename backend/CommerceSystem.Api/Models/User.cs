@@ -15,4 +15,6 @@ public class User
     public string Email { get; set; } = string.Empty;
 
     public List<Order> Orders { get; set; } = new();
+
+    public Cart Cart { get; set; } = null!;
 }

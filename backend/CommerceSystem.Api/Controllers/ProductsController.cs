@@ -58,7 +58,7 @@ public class ProductsController : ControllerBase
                 Id = createdProduct.Id,
                 Name = createdProduct.Name,
                 SKU = createdProduct.SKU,
-                Category = createdProduct.Category,
+                CategoryId = createdProduct.CategoryId,
                 Description = createdProduct.Description,
                 Price = createdProduct.Price,
                 StockQuantity = createdProduct.StockQuantity
@@ -112,7 +112,7 @@ public class ProductsController : ControllerBase
                 Id = updatedProduct.Id,
                 Name = updatedProduct.Name,
                 SKU = updatedProduct.SKU,
-                Category = updatedProduct.Category,
+                CategoryId = updatedProduct.CategoryId,
                 Description = updatedProduct.Description,
                 Price = updatedProduct.Price,
                 StockQuantity = updatedProduct.StockQuantity

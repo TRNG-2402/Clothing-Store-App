@@ -3575,31 +3575,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Nick\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\ibeat\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Nick\\Documents\\C#Practice\\CommerceSystem\\CommerceSystem.Api\\CommerceSystem.Api.csproj",
+      "projectUniqueName": "C:\\Users\\ibeat\\csharp\\Project 2\\Clothing-Store-App\\backend\\CommerceSystem.Api\\CommerceSystem.Api.csproj",
       "projectName": "CommerceSystem.Api",
-      "projectPath": "C:\\Users\\Nick\\Documents\\C#Practice\\CommerceSystem\\CommerceSystem.Api\\CommerceSystem.Api.csproj",
-      "packagesPath": "C:\\Users\\Nick\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Nick\\Documents\\C#Practice\\CommerceSystem\\CommerceSystem.Api\\obj\\",
+      "projectPath": "C:\\Users\\ibeat\\csharp\\Project 2\\Clothing-Store-App\\backend\\CommerceSystem.Api\\CommerceSystem.Api.csproj",
+      "packagesPath": "C:\\Users\\ibeat\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ibeat\\csharp\\Project 2\\Clothing-Store-App\\backend\\CommerceSystem.Api\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Nick\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\ibeat\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
