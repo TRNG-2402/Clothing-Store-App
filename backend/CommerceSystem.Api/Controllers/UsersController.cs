@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using CommerceSystem.Api.Models;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.Exceptions;
@@ -6,6 +8,7 @@ using CommerceSystem.Api.DTOs;
 
 namespace CommerceSystem.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
@@ -17,18 +20,27 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
+    /* Removed User Creation endpoint; this is handled by Auth
     // CreateUser
     [HttpPost]
-    public async Task<ActionResult<User>> Create(CreateUserRequest request)
+    public async Task<ActionResult<UserResponseDto>> Create(CreateUserRequest request)
     {
         try
         {
             var user = await _userService.CreateUserAsync(request);
 
+            var dto = new UserResponseDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Name = user.Name
+            };
+
+
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = user.Id },
-                user
+                new { id = dto.Id },
+                dto
             ); // 201
         }
         catch (ArgumentException ex)
@@ -36,15 +48,31 @@ public class UsersController : ControllerBase
             return BadRequest(ex.Message); // 400
         }
     }
-
-    // GetUserById
-    [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetById(int id)
+    */
+    // GetUser -> only get the loggedin user
+    [HttpGet("me")]
+    public async Task<ActionResult<UserResponseDto>> GetMe()
     {
         try
         {
-            var user = await _userService.GetByIdAsync(id);
-            return Ok(user);
+            // Get id from token
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim);
+
+            var user = await _userService.GetByIdAsync(userId);
+
+            var dto = new UserResponseDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Name = user.Name
+            };
+
+            return Ok(dto);
         }
         catch (UserNotFoundException ex)
         {
@@ -53,12 +81,20 @@ public class UsersController : ControllerBase
     }
 
     // GetUserOrders
-    [HttpGet("{id}/orders")]
-    public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders(int id)
+    [HttpGet("me/orders")]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders()
     {
         try
         {
-            var orders = await _userService.GetOrdersByUserIdAsync(id);
+            // Get id from token
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim);
+
+            var orders = await _userService.GetOrdersByUserIdAsync(userId);
 
             var result = orders.Select(o => new OrderDto
             {
@@ -82,12 +118,20 @@ public class UsersController : ControllerBase
 
     // UpdateUser (patch)
     [HttpPatch("{id}")]
-    public async Task<ActionResult<User>> Update(int id, UpdateUserRequest request)
+    public async Task<ActionResult<UserResponseDto>> Update(int id, UpdateUserRequest request)
     {
         try
         {
             var updatedUser = await _userService.UpdateUserAsync(id, request);
-            return Ok(updatedUser); // 200
+
+            var dto = new UserResponseDto
+            {
+                Id = updatedUser.Id,
+                Email = updatedUser.Email,
+                Name = updatedUser.Name
+            };
+
+            return Ok(dto); // 200
         }
         catch (UserNotFoundException ex)
         {

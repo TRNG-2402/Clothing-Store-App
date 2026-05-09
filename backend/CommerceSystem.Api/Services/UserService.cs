@@ -19,31 +19,27 @@ public class UserService : IUserService
 
 
     // CreateUser
-    public async Task<User> CreateUserAsync(CreateUserRequest request)
+    public async Task<User> CreateUserAsync(User user)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
+        if (string.IsNullOrWhiteSpace(user.Name))
             throw new ArgumentException("Name is required.");
-        }
 
-        if (string.IsNullOrWhiteSpace(request.Email))
-        {
+        if (string.IsNullOrWhiteSpace(user.Email))
             throw new ArgumentException("Email is required.");
-        }
 
         var emailExists = await _userRepository
-            .EmailExistsAsync(request.Email);
+            .EmailExistsAsync(user.Email);
 
         if (emailExists)
-        {
             throw new ArgumentException("Email already exists.");
-        }
 
+        /*
         var user = new User
         {
             Name = request.Name,
             Email = request.Email
         };
+        */
 
         await _userRepository.AddAsync(user);
         await _userRepository.SaveChangesAsync();
@@ -58,6 +54,19 @@ public class UserService : IUserService
 
         if (user == null)
             throw new UserNotFoundException($"User id {id} was not found.");
+
+        return user;
+    }
+
+    // GetUserByEmail
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+
+        /*
+        if (user == null)
+            throw new UserNotFoundException($"User matching email \"{email}\" was not found.");
+        */
 
         return user;
     }

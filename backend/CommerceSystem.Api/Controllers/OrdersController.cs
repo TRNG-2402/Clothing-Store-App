@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using CommerceSystem.Api.Models;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.DTOs;
@@ -6,6 +7,7 @@ using CommerceSystem.Api.Exceptions;
 
 namespace CommerceSystem.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class OrdersController : ControllerBase

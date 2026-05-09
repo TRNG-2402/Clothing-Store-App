@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using CommerceSystem.Api.Models;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.Exceptions;
@@ -46,6 +47,7 @@ public class ProductsController : ControllerBase
     }
 
     // CreateProduct
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<ProductDto>> Create(CreateProductRequest request)
     {
@@ -85,6 +87,7 @@ public class ProductsController : ControllerBase
 
 
     // Delete
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -100,6 +103,7 @@ public class ProductsController : ControllerBase
     }
 
     // PatchProductById
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id}")]
     public async Task<ActionResult<Product>> Update(int id, UpdateProductRequest request)
     {
