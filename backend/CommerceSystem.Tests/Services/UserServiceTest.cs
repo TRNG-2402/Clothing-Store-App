@@ -19,13 +19,13 @@ public class UserServiceTests
 
         var service = new UserService(repo.Object);
 
-        var request = new CreateUserRequest
+        var user = new User
         {
             Name = "Test",
             Email = "test@test.com"
         };
 
-        var result = await service.CreateUserAsync(request);
+        var result = await service.CreateUserAsync(user);
 
         Assert.NotNull(result);
     }
