@@ -13,8 +13,7 @@ public class Product
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
 
-    [MaxLength(50)]
-    public string Category { get; set; } = string.Empty;
+    public int CategoryId { get; set; }
 
     [MaxLength(500)]
     public string? Description { get; set; }
@@ -22,4 +21,8 @@ public class Product
     public decimal Price { get; set; }
 
     public int StockQuantity { get; set; }
+
+    public List<CartItem> CartItems { get; set; } = new();
+
+    public Category Category { get; set; } = null!;
 }

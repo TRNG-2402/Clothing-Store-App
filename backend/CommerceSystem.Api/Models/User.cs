@@ -21,4 +21,6 @@ public class User
     public string Role { get; set; } = "User";
 
     public List<Order> Orders { get; set; } = new();
+
+    public Cart Cart { get; set; } = null!;
 }

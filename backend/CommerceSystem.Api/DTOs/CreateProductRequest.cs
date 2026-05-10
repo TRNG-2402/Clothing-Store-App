@@ -13,8 +13,7 @@ public class CreateProductRequest
 
 
     [Required]
-    [MaxLength(50)]
-    public string Category { get; set; } = string.Empty;
+    public int CategoryId { get; set; }
 
     [Required]
     [MaxLength(500)]

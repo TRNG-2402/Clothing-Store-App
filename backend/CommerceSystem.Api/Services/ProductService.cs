@@ -40,7 +40,7 @@ public class ProductService : IProductService
         {
             Name = request.Name,
             SKU = request.SKU,
-            Category = request.Category,
+            CategoryId = request.CategoryId,
             Description = request.Description,
             Price = request.Price,
             StockQuantity = request.StockQuantity
@@ -116,10 +116,7 @@ public class ProductService : IProductService
             product.Description = request.Description;
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Category))
-        {
-            product.Category = request.Category;
-        }
+       product.CategoryId = request.CategoryId;
 
         await _productRepository.SaveChangesAsync();
 
