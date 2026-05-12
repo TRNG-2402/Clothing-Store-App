@@ -29,6 +29,7 @@ public class ProductServiceTest
         var result = await service.GetProductByIdAsync(1);
 
         Assert.NotNull(result);
+        Assert.Equal("Test Product", result.Name);
         Assert.Equal(1, result.Id);
     }
 

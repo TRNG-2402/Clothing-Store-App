@@ -17,20 +17,48 @@ public class ProductService : IProductService
 
 
     // GetAllProducts
-    public async Task<List<Product>> GetAllProductsAsync()
+    public async Task<PagedResult<ProductDto>> GetAllProductsAsync(ProductQueryParams queryParams)
     {
-        return await _productRepository.GetAllAsync();
+        var result = await _productRepository.GetAllAsync(queryParams);
+
+        return new PagedResult<ProductDto>
+        {
+            Items = result.Items.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                SKU = p.SKU,
+                CategoryId = p.CategoryId,
+                Description = p.Description,
+                Price = p.Price,
+                StockQuantity = p.StockQuantity
+            }).ToList(),
+
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize,
+            TotalCount = result.TotalCount,
+            TotalPages = result.TotalPages
+        };
     }
 
     // GetProductById
-    public async Task<Product> GetProductByIdAsync(int id)
+    public async Task<ProductDto> GetProductByIdAsync(int id)
     {
         var product = await _productRepository.GetByIdAsync(id);
 
         if (product == null)
             throw new ProductNotFoundException($"Product id {id} was not found.");
 
-        return product;
+        return new ProductDto
+        {
+            Id = product.Id,
+            Name = product.Name,
+            SKU = product.SKU,
+            CategoryId = product.CategoryId,
+            Description = product.Description,
+            Price = product.Price,
+            StockQuantity = product.StockQuantity
+        };
     }
 
     // CreateProduct
@@ -116,7 +144,7 @@ public class ProductService : IProductService
             product.Description = request.Description;
         }
 
-       product.CategoryId = request.CategoryId;
+        product.CategoryId = request.CategoryId;
 
         await _productRepository.SaveChangesAsync();
 
