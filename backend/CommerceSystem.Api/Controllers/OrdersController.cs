@@ -140,4 +140,21 @@ public class OrdersController : ControllerBase
             return NotFound(ex.Message); // 404
         }
     }
+
+
+    [HttpGet("my-orders")]
+    [Authorize]
+    public async Task<ActionResult<List<OrderSummaryDTO>>> GetMyOrders(int userId)
+    {
+
+        try
+        {
+            var result = await _orderService.GetMyOrdersAsync(userId);
+            return Ok(result);
+        }
+        catch (OrderNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
 }

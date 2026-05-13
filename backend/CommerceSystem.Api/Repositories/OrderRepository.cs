@@ -37,4 +37,17 @@ public class OrderRepository : IOrderRepository
     {
         await _context.SaveChangesAsync();
     }
+
+
+    public async Task<List<Order>> GetByUserIdWithProductsAsync(int userId)
+    {
+        return await _context.Orders
+            .Include(o => o.Items)
+                .ThenInclude(i => i.Product)
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+    }
+
+
 }

@@ -188,4 +188,24 @@ public class OrderService : IOrderService
 
         return order;
     }
+
+    public async Task<List<OrderSummaryDTO>> GetMyOrdersAsync(int userId)
+    {
+        var orders = await _orderRepository.GetByUserIdWithProductsAsync(userId);
+
+        return orders.Select(order => new OrderSummaryDTO
+        {
+            Id = order.Id,
+            CreatedAt = order.CreatedAt,
+            Status = order.Status.ToString(),
+            Total = order.Total,
+
+            Items = order.Items.Select(item => new OrderItemPreviewDTO
+            {
+                ProductId = item.ProductId,
+                ProductName = item.Product.Name,
+                Quantity = item.Quantity
+            }).ToList()
+        }).ToList();
+    }
 }
