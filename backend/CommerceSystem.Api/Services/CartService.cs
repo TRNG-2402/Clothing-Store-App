@@ -22,17 +22,17 @@ public class CartService : ICartService
 
     public async Task InsertItem(int userId, int productId, int quantity)
     {
-        return await _cartRepository.InsertItem(userId,productId,quantity);
+         await _cartRepository.InsertItem(userId,productId,quantity);
     }
 
     public async Task UpdateQuantity(int userId, int productId, int quantity)
     {
-        return await _cartRepository.UpdateQuantity(userId,productId,quantity);
+         await _cartRepository.UpdateQuantity(userId,productId,quantity);
     }
 
     public async Task DeleteItem(int userId, int productId)
     {
-        return await _cartRepository.DeleteItem(userId,productId);
+         await _cartRepository.DeleteItem(userId,productId);
     }
 
 

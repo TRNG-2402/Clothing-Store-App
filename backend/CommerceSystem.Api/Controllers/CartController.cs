@@ -22,12 +22,14 @@ public class CartController : ControllerBase
 
 
 [HttpGet]
-public async Task<ActionResult<CartItemDTO>> GetCartItems()
+public async Task<ActionResult<List<CartItemDTO>>> GetCartItems()
 {
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    if (userId == null)
+    if (userIdClaim == null)
         return Unauthorized();
+
+    var userId = int.Parse(userIdClaim);
 
     var cartItems = await _cartService.GetCartItems(userId);
 
