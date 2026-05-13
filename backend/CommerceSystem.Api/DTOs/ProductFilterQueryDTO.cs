@@ -4,14 +4,14 @@ public class ProductQueryParams
 {
     // page limitation
     private const int MaxPageSize = 50;
-    private int _pageSize = 10;
+    private int _pageSize = 12;
     private int _pageNumber = 1;
 
     // Search / Filtering
     public int? CategoryId { get; set; }
     public string? SortBy { get; set; } // "name", "price", "id"
     public bool Descending { get; set; }
-    
+
 
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
