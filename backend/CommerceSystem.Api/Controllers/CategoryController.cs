@@ -46,8 +46,6 @@ public class CategoriesController : ControllerBase
     }
 
 
-    // CHANGE FOR PRODUCT DTO
-
     // api/category/{id}/products
     // browsing products in a category does not require login
     [AllowAnonymous]
@@ -74,7 +72,12 @@ public class CategoriesController : ControllerBase
         try
         {
             var category = await _categoryService.CreateCategoryAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
+            //return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = category.CategoryId },
+                category
+            );
         }
         catch (Exception ex)
         {
