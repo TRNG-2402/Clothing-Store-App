@@ -1,10 +1,11 @@
 using CommerceSystem.Api.Data;
 using CommerceSystem.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using CommerceSystem.Api.DTOs;
 
 namespace CommerceSystem.Api.Repositories;
 
-public class CartRepository : IProductRepository
+public class CartRepository : ICartRepository
 {
     private readonly StoreDbContext _context;
 

@@ -1,4 +1,5 @@
 using CommerceSystem.Api.Models;
+using CommerceSystem.Api.DTOs;
 
 namespace CommerceSystem.Api.Repositories;
 
