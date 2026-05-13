@@ -1,0 +1,165 @@
+.page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  background: white;
+  max-width: 500px;
+  width: 100%;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* TOP SECTION */
+
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #2d3e50;
+  margin-bottom: 10px;
+}
+
+/* PRICE */
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.oldPrice {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.newPrice {
+  color: #e63946;
+  font-weight: bold;
+}
+
+.subPrice {
+  color: #6c7a89;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* REVIEWS */
+
+.reviews {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+/* DIVIDER */
+
+.divider {
+  border-top: 1px solid #eee;
+  margin: 20px 0;
+}
+
+/* COLOR SECTION */
+
+.sectionTitle {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.colorOptions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.colorCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  cursor: pointer;
+}
+
+.colorSelected {
+  border: 2px solid #2d3e50;
+}
+
+/* SIZE SECTION */
+
+.sizeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sizeGuide {
+  font-size: 12px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.sizes {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.sizeButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.sizeButton:hover {
+  border-color: #2d3e50;
+}
+
+.sizeSelected {
+  border: 2px solid #2d3e50;
+}
+
+/* VIEWING TEXT */
+
+.viewing {
+  font-size: 13px;
+  color: #6c7a89;
+  margin-bottom: 20px;
+}
+
+/* BUTTONS */
+
+.buttonRow {
+  display: flex;
+  gap: 12px;
+}
+
+.secondaryButton {
+  flex: 1;
+  border: 2px solid #2d3e50;
+  background: white;
+  border-radius: 30px;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.primaryButton {
+  flex: 1;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}

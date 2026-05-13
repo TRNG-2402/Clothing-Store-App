@@ -1,7 +1,4 @@
 import React from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 
@@ -20,16 +17,7 @@ function App() {
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-        </div>
-      </section>
+      
 
       <Routes>
         <Route path='/' element={<Home />} />
@@ -38,8 +26,8 @@ function App() {
         <Route path='/profile/orders' element={<Orders />} />
         <Route path='/profile/orders/:orderId' element={<OrderDetails />} />
 
-        <Route path='/products/:categoryId' element={<Products />} />
-        <Route path='/products/:productId' element={<ProductDetails />} />
+        <Route path='/category/:categoryName' element={<Products />} />
+        <Route path='/product/:id' element={<ProductDetails />} />
 
         <Route path='/cart' element={<Cart />} />
 
