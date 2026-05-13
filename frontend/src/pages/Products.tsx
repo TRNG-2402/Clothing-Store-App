@@ -20,7 +20,7 @@ function Products()
     const [pageNumber, setPageNumber] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    // Filters (state lives here, UI lives in ProductFilters)
+    // Filters
     const [search, setSearch] = useState("");
     const [categoryId, setCategoryId] = useState<number | "">("");
     const [minPrice, setMinPrice] = useState("");
