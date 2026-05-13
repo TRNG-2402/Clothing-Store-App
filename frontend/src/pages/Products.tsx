@@ -1,95 +1,134 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import NavBar from '../components/NavBar'
-import styles from './Products.module.css'
+import { useEffect, useState } from "react";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  categoryName: string;
-};
+import styles from "../components/Products.module.css";
 
-export default function Products()
+import type { Product } from "../types/Product";
+import type { Category } from "../types/Category";
+
+import { getProducts } from "../services/productService";
+import { getCategories } from "../services/categoryService";
+
+import ProductCard from "../components/ProductCard";
+import PaginationControls from "../components/PaginationControls";
+import ProductFilters from "../components/ProductFilters";
+
+function Products()
 {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
 
-  const [products, setProducts] = useState<Product[]>([]);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
-  const fakeProducts: Product[] = [
-    { id: 1, name: "Laptop", price: 500, categoryName: "other" },
-    { id: 2, name: "Phone", price: 1000, categoryName: "other" },
-    { id: 3, name: "Shirt", price: 24.99, categoryName: "tops" },
-    { id: 4, name: "Pants", price: 30, categoryName: "bottoms"}
-  ];
+    // Filters
+    const [search, setSearch] = useState("");
+    const [categoryId, setCategoryId] = useState<number | "">("");
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
 
-  const getProductsByCategory = (categoryName: string): Product[] =>
-  {
-    return fakeProducts.filter(p => p.categoryName === categoryName);
-  };
+    // Trigger re-fetch
+    const [queryTrigger, setQueryTrigger] = useState(0);
 
-  const { categoryName } = useParams<{ categoryName: string }>();
+    const pageSize = 12;
 
-  useEffect(() =>
-  {
-    if (!categoryName) return;
+    // -------------------------
+    // FETCH PRODUCTS
+    // -------------------------
+    useEffect(() =>
+    {
+        fetchProducts();
+    }, [pageNumber, queryTrigger]);
 
-    const data = getProductsByCategory(categoryName);
-    setProducts(data);
-  }, [categoryName]);
+    const fetchProducts = async () =>
+    {
+        try
+        {
+            const data = await getProducts({
+                pageNumber,
+                pageSize,
+                search,
+                categoryId: categoryId === "" ? undefined : categoryId,
+                minPrice: minPrice === "" ? undefined : Number(minPrice),
+                maxPrice: maxPrice === "" ? undefined : Number(maxPrice)
+            });
 
- 
-  const [sortOrder, setSortOrder] = useState<string>(""); // "low" | "high"
+            setProducts(data.items);
+            setTotalPages(data.totalPages);
 
-  useEffect(() => {
-  if (!categoryName) return;
+            if (data.totalPages > 0 && pageNumber > data.totalPages)
+            {
+                setPageNumber(1);
+            }
+        } catch (error)
+        {
+            console.error("Failed to fetch products", error);
+        }
+    };
 
-  let data = fakeProducts.filter(
-    p => p.categoryName === categoryName
-  );
+    // -------------------------
+    // FETCH CATEGORIES
+    // -------------------------
+    useEffect(() =>
+    {
+        fetchCategories();
+    }, []);
 
-  if (sortOrder === "low") {
-    data = data.sort((a, b) => a.price - b.price);
-  }
+    const fetchCategories = async () =>
+    {
+        try
+        {
+            const data = await getCategories();
+            setCategories(data);
+        } catch (error)
+        {
+            console.error("Failed to fetch categories", error);
+        }
+    };
 
-  if (sortOrder === "high") {
-    data = data.sort((a, b) => b.price - a.price);
-  }
+    const safeTotalPages = Math.max(totalPages, 1);
 
-  setProducts([...data]); // spread = avoid mutation issues
-}, [categoryName, sortOrder]);
+    return (
+        <div className={styles.page}>
+            <h1 className={styles.header}>Products</h1>
 
-  return (
-    <div style={{ backgroundColor: "#f5f5f5" , minHeight: "100vh" }}>
-      <NavBar />
+            {/* FILTERS */}
+            <ProductFilters
+                search={search}
+                setSearch={setSearch}
+                categoryId={categoryId}
+                setCategoryId={setCategoryId}
+                minPrice={minPrice}
+                setMinPrice={setMinPrice}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                categories={categories}
+                onSearch={() =>
+                {
+                    setPageNumber(1);
+                    setQueryTrigger(prev => prev + 1);
+                }}
+            />
 
-   <div className={styles.header}>
-  <h2 style={{ color: "#777"}}>{categoryName}</h2>
+            {/* GRID */}
+            <div className={styles.productGrid}>
+                {products.map(product => (
+                    <ProductCard
+                        key={product.productId}
+                        product={product}
+                    />
+                ))}
+            </div>
 
-  <select onChange={(e) => setSortOrder(e.target.value)}>
-    <option value="">Sort</option>
-    <option value="low">Lowest Price</option>
-    <option value="high">Highest Price</option>
-  </select>
-</div>
-
-      <div className={styles.grid}>
-  {products.map((p: Product) => (
-    <div key={p.id} className={styles.card}>
-
-      <div className={styles.title}>{p.name}</div>
-
-      <div className={styles.price}>
-        ${p.price.toFixed(2)}
-      </div>
-
-      <Link to={`'/product/${p.id}`} className={styles.viewButton}>
-    View Product
-  </Link>
-
-
-    </div>
-  ))}
-</div>
-
-     </div>)
+            {/* PAGINATION */}
+            <div className={styles.pagination}>
+                <PaginationControls
+                    pageNumber={pageNumber}
+                    totalPages={safeTotalPages}
+                    onPageChange={setPageNumber}
+                />
+            </div>
+        </div>
+    );
 }
+
+export default Products;

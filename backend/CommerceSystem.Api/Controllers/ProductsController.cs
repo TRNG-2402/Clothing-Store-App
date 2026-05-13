@@ -20,15 +20,16 @@ public class ProductsController : ControllerBase
 
     // GetAll
     [HttpGet]
-    public async Task<ActionResult<List<Product>>> GetAll()
+    public async Task<ActionResult<PagedResult<ProductDto>>> GetAll(
+        [FromQuery] ProductQueryParams queryParams)
     {
-        var products = await _productService.GetAllProductsAsync();
+        var products = await _productService.GetAllProductsAsync(queryParams);
         return Ok(products); // 200
     }
 
     // GetById
     [HttpGet("{id}")]
-    public async Task<ActionResult<Product>> GetById(int id)
+    public async Task<ActionResult<ProductDto>> GetById(int id)
     {
         try
         {
