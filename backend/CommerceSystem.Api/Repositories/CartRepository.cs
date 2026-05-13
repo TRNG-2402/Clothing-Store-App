@@ -9,7 +9,7 @@ public class CartRepository : ICartRepository
 {
     private readonly StoreDbContext _context;
 
-    public ProductRepository(StoreDbContext context)
+    public CartRepository(StoreDbContext context)
     {
         _context = context;
     }
