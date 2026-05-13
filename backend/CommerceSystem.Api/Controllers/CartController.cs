@@ -4,6 +4,7 @@ using CommerceSystem.Api.Models;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.DTOs;
 using CommerceSystem.Api.Exceptions;
+using System.Security.Claims;
 
 namespace CommerceSystem.Api.Controllers;
 
