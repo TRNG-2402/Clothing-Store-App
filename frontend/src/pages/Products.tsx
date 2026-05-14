@@ -11,6 +11,7 @@ import { getCategories } from "../services/categoryService";
 import ProductCard from "../components/ProductCard";
 import PaginationControls from "../components/PaginationControls";
 import ProductFilters from "../components/ProductFilters";
+import NavBar from '../components/NavBar'
 
 function Products()
 {
@@ -89,7 +90,9 @@ function Products()
 
     return (
         <div className={styles.page}>
+            <NavBar />
             <h1 className={styles.header}>Products</h1>
+
 
             {/* FILTERS */}
             <ProductFilters

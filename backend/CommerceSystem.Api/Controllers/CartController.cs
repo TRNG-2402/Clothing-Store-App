@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using CommerceSystem.Api.Models;
+using System.Security.Claims;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.DTOs;
-using CommerceSystem.Api.Exceptions;
-using System.Security.Claims;
 
 namespace CommerceSystem.Api.Controllers;
 
@@ -20,59 +18,61 @@ public class CartController : ControllerBase
         _cartService = cartService;
     }
 
+    private int GetUserId()
+    {
+        return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    }
 
-[HttpGet]
-public async Task<ActionResult<List<CartItemDTO>>> GetCartItems()
-{
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    [HttpGet]
+    public async Task<IActionResult> GetCart()
+    {
+        var userId = GetUserId();
 
-    if (userIdClaim == null)
-        return Unauthorized();
+        var cart = await _cartService.GetCartByUserIdAsync(userId);
 
-    var userId = int.Parse(userIdClaim);
+        return Ok(cart);
+    }
 
-    var cartItems = await _cartService.GetCartItems(userId);
+    [HttpPost("items")]
+    public async Task<IActionResult> AddItem([FromBody] AddCartItemRequest request)
+    {
+        var userId = GetUserId();
 
-    return Ok(cartItems);
-}
+        var cart = await _cartService.AddItemAsync(userId, request);
 
+        return Ok(cart);
+    }
 
+    [HttpPatch("items/{productId}")]
+    public async Task<IActionResult> UpdateItemQuantity(
+        int productId,
+        [FromBody] UpdateCartItemRequest request)
+    {
+        var userId = GetUserId();
 
-[HttpPost("items")]
-public async Task<IActionResult> AddItem(AddCartItemDto dto)
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var cart = await _cartService.UpdateItemQuantityAsync(userId, productId, request);
 
-    await _cartService.InsertItem(userId, dto.ProductId, dto.Quantity);
+        return Ok(cart);
+    }
 
-    return Ok();
-}
+    [HttpDelete("items/{productId}")]
+    public async Task<IActionResult> RemoveItem(int productId)
+    {
+        var userId = GetUserId();
 
+        await _cartService.RemoveItemAsync(userId, productId);
 
+        return NoContent();
+    }
 
+    [HttpDelete]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ClearCart()
+    {
+        var userId = GetUserId();
 
-[HttpPut("items")]
-public async Task<IActionResult> UpdateItem(UpdateCartItemDto dto)
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        await _cartService.ClearCartAsync(userId);
 
-    await _cartService.UpdateQuantity(userId, dto.ProductId, dto.Quantity);
-
-    return Ok();
-}
-
-
-
-
-[HttpDelete("items/{productId}")]
-public async Task<IActionResult> DeleteItem(int productId)
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-    await _cartService.DeleteItem(userId, productId);
-
-    return Ok();
-}
-    
-
+        return NoContent();
+    }
 }
