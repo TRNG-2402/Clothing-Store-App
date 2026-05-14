@@ -18,6 +18,15 @@ public class CategoriesController : ControllerBase
         _categoryService = categoryService;
     }
 
+    // GetAllCategories w/ SalesInfo
+    [AllowAnonymous]
+    [HttpGet("with-sales")]
+    public async Task<IActionResult> GetCategoriesWithSales()
+    {
+        var result = await _categoryService.GetCategoriesWithActiveSalesAsync();
+        return Ok(result); // 200
+    }
+
     // GetAllCategories
     [AllowAnonymous]
     [HttpGet]

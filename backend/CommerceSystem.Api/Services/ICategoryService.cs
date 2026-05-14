@@ -6,6 +6,7 @@ public interface ICategoryService
 {
     Task<List<CategoryDto>> GetAllAsync();
     //Task<List<Category>> GetAllCategoriesAsync();
+    Task<List<CategoryWithSaleDto>> GetCategoriesWithActiveSalesAsync();
     Task<CategoryDto> GetCategoryByIdAsync(int id);
     Task<List<ProductDto>> GetProductsByCategoryAsync(int categoryId);
     Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request);
