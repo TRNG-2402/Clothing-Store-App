@@ -62,6 +62,7 @@ public class SaleService : ISaleService
             Description = request.Description,
             CategoryId = request.CategoryId
         };
+
         await _saleRepository.AddAsync(sale);
         await _saleRepository.SaveChangesAsync();
         return sale;

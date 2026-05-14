@@ -3,35 +3,62 @@ using CommerceSystem.Api.Exceptions;
 using CommerceSystem.Api.Repositories;
 using CommerceSystem.Api.DTOs;
 
-
 namespace CommerceSystem.Api.Services;
 
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ISaleService _saleService;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, ISaleService saleService)
     {
         _productRepository = productRepository;
+        _saleService = saleService;
     }
 
+    // ProductDtoMapping
+    private ProductDto MapToDto(Product product, Sale? activeSale)
+    {
+        var discount = activeSale?.DiscountPercentage ?? 0;
+
+        var finalPrice = discount > 0
+            ? product.Price - (product.Price * discount / 100)
+            : product.Price;
+
+        return new ProductDto
+        {
+            Id = product.Id,
+            Name = product.Name,
+            SKU = product.SKU,
+            CategoryId = product.CategoryId,
+            Description = product.Description,
+
+            Price = product.Price,
+            FinalPrice = finalPrice,
+            HasActiveSale = activeSale != null,
+            DiscountPercentage = activeSale?.DiscountPercentage,
+
+            StockQuantity = product.StockQuantity
+        };
+    }
 
     // GetAllProducts
     public async Task<PagedResult<ProductDto>> GetAllProductsAsync(ProductQueryParams queryParams)
     {
         var result = await _productRepository.GetAllAsync(queryParams);
 
+        var activeSales = await _saleService.GetActiveSalesAsync();
+
+        var salesByCategory = activeSales
+            .GroupBy(s => s.CategoryId)
+            .ToDictionary(g => g.Key, g => g.First());
+
         return new PagedResult<ProductDto>
         {
-            Items = result.Items.Select(p => new ProductDto
+            Items = result.Items.Select(p =>
             {
-                Id = p.Id,
-                Name = p.Name,
-                SKU = p.SKU,
-                CategoryId = p.CategoryId,
-                Description = p.Description,
-                Price = p.Price,
-                StockQuantity = p.StockQuantity
+                salesByCategory.TryGetValue(p.CategoryId, out var sale);
+                return MapToDto(p, sale);
             }).ToList(),
 
             PageNumber = result.PageNumber,
@@ -49,16 +76,15 @@ public class ProductService : IProductService
         if (product == null)
             throw new ProductNotFoundException($"Product id {id} was not found.");
 
-        return new ProductDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            SKU = product.SKU,
-            CategoryId = product.CategoryId,
-            Description = product.Description,
-            Price = product.Price,
-            StockQuantity = product.StockQuantity
-        };
+        var activeSales = await _saleService.GetActiveSalesAsync();
+
+        var salesByCategory = activeSales
+            .GroupBy(s => s.CategoryId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        salesByCategory.TryGetValue(product.CategoryId, out var sale);
+
+        return MapToDto(product, sale);
     }
 
     // CreateProduct
@@ -95,8 +121,6 @@ public class ProductService : IProductService
             throw new DuplicateSkuException(product.SKU);
         }
 
-        //_context.Products.Add(product);
-        //await _context.SaveChangesAsync();
         await _productRepository.AddAsync(product);
         await _productRepository.SaveChangesAsync();
 
