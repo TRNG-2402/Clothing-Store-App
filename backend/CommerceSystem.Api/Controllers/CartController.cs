@@ -21,58 +21,58 @@ public class CartController : ControllerBase
     }
 
 
-[HttpGet]
-public async Task<ActionResult<List<CartItemDTO>>> GetCartItems()
-{
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    [HttpGet]
+    public async Task<ActionResult<List<CartItemDTO>>> GetCartItems()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    if (userIdClaim == null)
-        return Unauthorized();
+        if (userIdClaim == null)
+            return Unauthorized();
 
-    var userId = int.Parse(userIdClaim);
+        var userId = int.Parse(userIdClaim);
 
-    var cartItems = await _cartService.GetCartItems(userId);
+        var cartItems = await _cartService.GetCartItems(userId);
 
-    return Ok(cartItems);
-}
-
-
-
-[HttpPost("items")]
-public async Task<IActionResult> AddItem(AddCartItemDto dto)
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-    await _cartService.InsertItem(userId, dto.ProductId, dto.Quantity);
-
-    return Ok();
-}
+        return Ok(cartItems);
+    }
 
 
 
+    [HttpPost("items")]
+    public async Task<IActionResult> AddItem(AddCartItemDto dto)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-[HttpPut("items")]
-public async Task<IActionResult> UpdateItem(UpdateCartItemDto dto)
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        await _cartService.InsertItem(userId, dto.ProductId, dto.Quantity);
 
-    await _cartService.UpdateQuantity(userId, dto.ProductId, dto.Quantity);
-
-    return Ok();
-}
+        return Ok();
+    }
 
 
 
 
-[HttpDelete("items/{productId}")]
-public async Task<IActionResult> DeleteItem(int productId)
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    [HttpPut("items")]
+    public async Task<IActionResult> UpdateItem(UpdateCartItemDto dto)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-    await _cartService.DeleteItem(userId, productId);
+        await _cartService.UpdateQuantity(userId, dto.ProductId, dto.Quantity);
 
-    return Ok();
-}
-    
+        return Ok();
+    }
+
+
+
+
+    [HttpDelete("items/{productId}")]
+    public async Task<IActionResult> DeleteItem(int productId)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        await _cartService.DeleteItem(userId, productId);
+
+        return Ok();
+    }
+
 
 }
