@@ -1,6 +1,7 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from "./NavBar.module.css"
+import { useAuth } from '../context/AuthContext';
 import cart from "../assets/cart.png";
 import user from "../assets/user.png";
 
