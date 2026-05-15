@@ -4,6 +4,9 @@ using CommerceSystem.Api.Models;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.DTOs;
 using CommerceSystem.Api.Exceptions;
+using CommerceSystem.Api.Data;
+using System.Security.Claims;
+
 
 namespace CommerceSystem.Api.Controllers;
 
@@ -13,10 +16,13 @@ namespace CommerceSystem.Api.Controllers;
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
+    private readonly StoreDbContext _context;
 
-    public OrdersController(IOrderService orderService)
+
+    public OrdersController(IOrderService orderService, StoreDbContext context)
     {
         _orderService = orderService;
+        _context = context;
     }
 
     // CreateOrder
@@ -74,6 +80,57 @@ public class OrdersController : ControllerBase
             return NotFound(ex.Message); // 404  
         }
     }
+
+
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateOrder(CreateOrderDto dto)
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized();
+
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(); // or BadRequest("Invalid user id");
+
+        TimeZoneInfo eastern = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+
+        DateTime easternTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, eastern);
+
+        var order = new Order
+        {
+            ShippingAddress = dto.ShippingAddress,
+            CreatedAt = easternTime,
+            UserId = userId,
+        };
+
+        decimal total = 0;
+
+        foreach (var item in dto.Items)
+        {
+            var product = await _context.Products.FindAsync(item.ProductId);
+
+            var orderItem = new OrderItem
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                UnitPrice = product.Price
+            };
+
+            total += orderItem.UnitPrice * orderItem.Quantity;
+
+          order.Items.Add(orderItem);
+        }
+
+        order.Total = total;
+
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+
+        return Ok(order.Id);
+    }
+
+
 
     // GetOrderById
     [HttpGet("{id}")]
