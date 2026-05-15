@@ -21,7 +21,7 @@ public class CartRepository : ICartRepository
                 .ThenInclude(ci => ci.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId);
     }
-
+    /*
     public async Task<List<CartItemDTO>> GetCartItems(int userId)
     {
         var items = await _context.CartItems
@@ -39,6 +39,14 @@ public class CartRepository : ICartRepository
 
         return items;
         //auto handles when empty
+    }
+    */
+    public async Task<List<CartItem>> GetCartItems(int userId)
+    {
+        return await _context.CartItems
+            .Include(ci => ci.Product)
+            .Where(ci => ci.Cart.UserId == userId)
+            .ToListAsync();
     }
 
 
@@ -104,7 +112,7 @@ public class CartRepository : ICartRepository
 
             return;
         }
-            
+
 
 
         if (quantity <= 0)

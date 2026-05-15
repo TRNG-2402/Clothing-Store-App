@@ -106,11 +106,11 @@ const subtotal = cartItems.reduce(
 
       <div className={styles.container}>
         <div className={styles.left}>
-          <h2 className={styles.title}>Shopping Bag</h2>
+          <h2 className={styles.title}>Shopping Cart</h2>
 
           <div className={styles.tabs}>
             <span className={styles.activeTab}>
-              In Bag ({cartItems.length})
+              In Cart ({cartItems.length})
             </span>
           </div>
 

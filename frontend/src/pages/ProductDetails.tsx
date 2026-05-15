@@ -2,15 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import NavBar from '../components/NavBar'
 import styles from './ProductDetails.module.css'
+import type { Product } from '../types/Product'
 
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  categoryName: string;
-  stockQuantity: number;
-};
 console.log("ProductDetails PAGE RENDERED");
 
 
@@ -84,7 +78,7 @@ useEffect(() => {
       return;
     }
 
-    setMessage("Item added to bag!");
+    setMessage("Item added to cart!");
 
     setTimeout(() => {
       setMessage(null);
@@ -113,7 +107,7 @@ useEffect(() => {
 
         <div className={styles.priceRow}>
           <span className={styles.newPrice}>
-            ${product.price.toFixed(2)}
+            ${product.finalPrice.toFixed(2)}
           </span>
         </div>
 
@@ -143,7 +137,7 @@ useEffect(() => {
             className={styles.primaryButton}
             onClick={handleAddToCart}
           >
-            Add To Bag
+            Add To Cart
           </button>
         </div>
 
