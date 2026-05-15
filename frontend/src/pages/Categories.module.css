@@ -20,6 +20,19 @@
   white-space: nowrap;
 }
 
+
+.title {
+    font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+
+  /* truncate long names like real sites */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
