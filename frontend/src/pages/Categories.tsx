@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 
 import styles from "./Categories.module.css";
 
-import { getCategoriesWithSales } from "../services/categoryService";
-import type { CategoryWithSale } from "../types/CategoryWithSale";
+import { getCategories } from "../services/categoryService";
+import type { Category } from "../types/Category";
 import NavBar from "../components/NavBar";
 
 function Categories()
 {
-    const [categories, setCategories] = useState<CategoryWithSale[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() =>
@@ -21,17 +23,23 @@ function Categories()
     {
         try
         {
-            const data = await getCategoriesWithSales();
+            setIsLoading(true);
+            setError(null);
+            const data = await getCategories();
             setCategories(data);
         } catch (err)
         {
             console.error("Failed to load categories", err);
+            setError("Failed to load categories.");
+        } finally
+        {
+            setIsLoading(false);
         }
     };
 
     const handleClick = (categoryId: number) =>
     {
-        navigate(`/products?categoryId=${categoryId}`);
+        navigate(`/categories/${categoryId}`);
     };
 
     return (
@@ -40,6 +48,10 @@ function Categories()
 
             <h1 className={styles.header}>Categories</h1>
 
+            {isLoading && <p className={styles.loading}>Loading categories...</p>}
+
+            {error && <p className={styles.error}>{error}</p>}
+
             <div className={styles.grid}>
                 {categories.map(cat => (
                     <div
@@ -47,13 +59,7 @@ function Categories()
                         className={styles.card}
                         onClick={() => handleClick(cat.categoryId)}
                     >
-                        <h2>{cat.name}</h2>
-
-                        {cat.hasActiveSale && (
-                            <div className={styles.saleBadge}>
-                                {cat.discountPercentage}% OFF
-                            </div>
-                        )}
+                        <h2 className={styles.name}>{cat.name}</h2>
                     </div>
                 ))}
             </div>

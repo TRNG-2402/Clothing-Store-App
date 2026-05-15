@@ -14,6 +14,7 @@ import Register from './pages/Register'
 import Categories from './pages/Categories'
 import ProtectedRoute from './components/ProtectedRoute'
 import Checkout from './pages/Checkout'
+import CategoryDetails from './pages/CategoryDetails'
 
 function App()
 {
@@ -22,6 +23,8 @@ function App()
       <Route path='/' element={<Home />} />
 
       <Route path='/categories' element={<Categories />} />
+
+      <Route path='/categories/:categoryId' element={<CategoryDetails />} />
 
       <Route path='/products' element={<Products />} />
 
