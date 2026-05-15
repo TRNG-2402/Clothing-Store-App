@@ -53,9 +53,9 @@ describe('<CartPage/>', () =>
         //navbar elements here
 
         //item elements
-        expect(screen.getByText('Shopping Bag')).toBeInTheDocument();
+        expect(screen.getByText('Shopping Cart')).toBeInTheDocument();
 
-        expect(await screen.findByText(`In Bag (${cartItems.length})`)).toBeInTheDocument();
+        expect(await screen.findByText(`In Cart (${cartItems.length})`)).toBeInTheDocument();
 
         //assuming one element has been added
         for (var i = 0; i < cartItems.length; i++)
