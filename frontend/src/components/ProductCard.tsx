@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { Product } from '../types/Product'
 import styles from "./ProductCard.module.css"
 
@@ -10,44 +11,46 @@ interface ProductCardProps
 function ProductCard({ product }: ProductCardProps)
 {
     return (
-        <div className={styles.card}>
+        <Link to={`/product/${product.productId}`}>
+            <div className={styles.card}>
 
-            <h3 className={styles.name}>
-                {product.name}
-            </h3>
+                <h3 className={styles.name}>
+                    {product.name}
+                </h3>
 
-            <div
-                className={`${styles.priceSection} ${!product.hasActiveSale ? styles.centerPrice : ""
-                    }`}
-            >
+                <div
+                    className={`${styles.priceSection} ${!product.hasActiveSale ? styles.centerPrice : ""
+                        }`}
+                >
 
-                {product.hasActiveSale ? (
-                    <>
-                        <span className={styles.originalPrice}>
+                    {product.hasActiveSale ? (
+                        <>
+                            <span className={styles.originalPrice}>
+                                ${product.price.toFixed(2)}
+                            </span>
+
+                            <span className={styles.salePrice}>
+                                ${product.finalPrice.toFixed(2)}
+                            </span>
+
+                            <span className={styles.saleTag}>
+                                {product.discountPercentage}% OFF
+                            </span>
+                        </>
+                    ) : (
+                        <span className={styles.normalPrice}>
                             ${product.price.toFixed(2)}
                         </span>
+                    )}
 
-                        <span className={styles.salePrice}>
-                            ${product.finalPrice.toFixed(2)}
-                        </span>
+                </div>
 
-                        <span className={styles.saleTag}>
-                            {product.discountPercentage}% OFF
-                        </span>
-                    </>
-                ) : (
-                    <span className={styles.normalPrice}>
-                        ${product.price.toFixed(2)}
-                    </span>
-                )}
+                <p className={styles.stock}>
+                    Stock: {product.stockQuantity}
+                </p>
 
             </div>
-
-            <p className={styles.stock}>
-                Stock: {product.stockQuantity}
-            </p>
-
-        </div>
+        </Link>
     );
 }
 
