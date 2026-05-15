@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using CommerceSystem.Api.DTOs;
 using CommerceSystem.Api.Models;
+using CommerceSystem.Api.Data;
 
 namespace CommerceSystem.Api.Services;
 
@@ -12,11 +13,13 @@ public class AuthService : IAuthService
 {
     private readonly IUserService _userService;
     private readonly IConfiguration _config;
+    private readonly StoreDbContext _context;
 
-    public AuthService(IUserService userService, IConfiguration config)
+    public AuthService(IUserService userService, IConfiguration config, StoreDbContext context)
     {
         _userService = userService;
         _config = config;
+        _context = context;
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
@@ -106,6 +109,17 @@ public class AuthService : IAuthService
 
         // Create user via UserService
         var createdUser = await _userService.CreateUserAsync(user);
+
+
+        var cart = new Cart //assign cartId to each user
+        {
+            UserId = createdUser.Id
+        };
+
+        _context.Carts.Add(cart);
+        await _context.SaveChangesAsync();
+
+
 
         // Return DTO
         return new UserResponseDto

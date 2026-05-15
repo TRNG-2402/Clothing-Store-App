@@ -70,7 +70,7 @@ export default function NavBar()
 
                 {/* RIGHT ACTIONS */}
                 <div className={styles.actions}>
-                    <input placeholder="Search..." />
+                   {/* <input placeholder="Search..." />*/} 
 
                     <div className={styles.icons}>
                         <Link to="/profile" className={styles.link}>

@@ -119,6 +119,8 @@ function Products() {
         }));
     };
 
+
+
     return (
         <div className={styles.page}>
             <NavBar />
@@ -147,7 +149,7 @@ function Products() {
 
             <div className={styles.productGrid}>
                 {products.map(p => (
-                    <ProductCard key={p.productId} product={p} />
+                    <ProductCard key={p.id} product={p} />
                 ))}
             </div>
 

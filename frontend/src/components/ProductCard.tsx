@@ -1,19 +1,25 @@
 import type { Product } from '../types/Product'
 import styles from "./ProductCard.module.css"
+import { Link } from 'react-router-dom';
 
 
 interface ProductCardProps
 {
     product: Product;
 }
+ 
 
 function ProductCard({ product }: ProductCardProps)
 {
+    
     return (
+       
+        <Link to={`/product/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}>
         <div className={styles.card}>
 
             <h3 className={styles.name}>
                 {product.name}
+                
             </h3>
 
             <div
@@ -48,6 +54,7 @@ function ProductCard({ product }: ProductCardProps)
             </p>
 
         </div>
+        </Link>
     );
 }
 
