@@ -16,15 +16,20 @@ public class ProductService : IProductService
         _saleService = saleService;
     }
 
-    // ProductDtoMapping
-    public ProductDto MapToDto(Product product, Sale? activeSale)
+    // Calculate the final sales price
+    public decimal CalculateFinalPrice(Product product, Sale? activeSale)
     {
         var discount = activeSale?.DiscountPercentage ?? 0;
 
-        var finalPrice = discount > 0
-            ? product.Price - (product.Price * discount / 100)
-            : product.Price;
+        if (discount <= 0)
+            return product.Price;
 
+        return product.Price - (product.Price * discount / 100);
+    }
+
+    // ProductDtoMapping
+    public ProductDto MapToDto(Product product, Sale? activeSale)
+    {
         return new ProductDto
         {
             Id = product.Id,
@@ -34,7 +39,7 @@ public class ProductService : IProductService
             Description = product.Description,
 
             Price = product.Price,
-            FinalPrice = finalPrice,
+            FinalPrice = CalculateFinalPrice(product, activeSale),
             HasActiveSale = activeSale != null,
             DiscountPercentage = activeSale?.DiscountPercentage,
 
