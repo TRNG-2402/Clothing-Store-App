@@ -2,15 +2,16 @@
     padding: 24px;
 }
 
-.title {
-    font-size: 24px;
+.header {
+    font-size: 48px;
     font-weight: bold;
-    margin-bottom: 16px;
+    margin-bottom: 48px;
+    margin-top: 36px;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
 }
 
