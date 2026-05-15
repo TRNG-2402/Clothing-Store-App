@@ -8,10 +8,36 @@ namespace CommerceSystem.Api.Services;
 public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ISaleService _saleService;
 
-    public CategoryService(ICategoryRepository categoryRepository)
+    public CategoryService(ICategoryRepository categoryRepository, ISaleService saleService)
     {
         _categoryRepository = categoryRepository;
+        _saleService = saleService;
+    }
+
+    // GetAllCategories w/ SalesInfo (for categories page)
+    public async Task<List<CategoryWithSaleDto>> GetCategoriesWithActiveSalesAsync()
+    {
+        var categories = await _categoryRepository.GetAllAsync();
+        var activeSales = await _saleService.GetActiveSalesAsync();
+
+        var salesByCategory = activeSales
+            .GroupBy(s => s.CategoryId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        return categories.Select(c =>
+        {
+            salesByCategory.TryGetValue(c.Id, out var sale);
+
+            return new CategoryWithSaleDto
+            {
+                CategoryId = c.Id,
+                Name = c.Name,
+                HasActiveSale = sale != null,
+                DiscountPercentage = sale?.DiscountPercentage
+            };
+        }).ToList();
     }
 
     // GetAllCategories

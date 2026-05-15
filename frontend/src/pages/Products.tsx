@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import styles from "../components/Products.module.css";
 
@@ -11,125 +12,152 @@ import { getCategories } from "../services/categoryService";
 import ProductCard from "../components/ProductCard";
 import PaginationControls from "../components/PaginationControls";
 import ProductFilters from "../components/ProductFilters";
-import NavBar from '../components/NavBar'
+import NavBar from "../components/NavBar";
 
-function Products()
-{
+function Products() {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-
-    const [pageNumber, setPageNumber] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    // Filters
-    const [search, setSearch] = useState("");
-    const [categoryId, setCategoryId] = useState<number | "">("");
-    const [minPrice, setMinPrice] = useState("");
-    const [maxPrice, setMaxPrice] = useState("");
-
-    // Trigger re-fetch
-    const [queryTrigger, setQueryTrigger] = useState(0);
+    const [searchParams] = useSearchParams();
+    const urlCategoryId = searchParams.get("categoryId");
 
     const pageSize = 12;
 
     // -------------------------
-    // FETCH PRODUCTS
+    // SINGLE SOURCE OF TRUTH
     // -------------------------
-    useEffect(() =>
-    {
-        fetchProducts();
-    }, [pageNumber, queryTrigger]);
+    const [query, setQuery] = useState({
+        pageNumber: 1,
+        search: "",
+        categoryId: "" as number | "",
+        minPrice: "",
+        maxPrice: ""
+    });
 
-    const fetchProducts = async () =>
-    {
-        try
-        {
+    // -------------------------
+    // RACE CONDITION GUARD
+    // -------------------------
+    const requestIdRef = useRef(0);
+
+    // -------------------------
+    // DEBUG LOG (STATE)
+    // -------------------------
+    useEffect(() => {
+        console.log("QUERY UPDATED:", query);
+    }, [query]);
+
+    // -------------------------
+    // LOAD CATEGORIES
+    // -------------------------
+    useEffect(() => {
+        getCategories().then(setCategories);
+    }, []);
+
+    // -------------------------
+    // APPLY URL CATEGORY ONCE
+    // -------------------------
+    useEffect(() => {
+        setQuery(prev => ({
+            ...prev,
+            categoryId: urlCategoryId ? Number(urlCategoryId) : "",
+            pageNumber: 1
+        }));
+    }, [urlCategoryId]);
+
+    // -------------------------
+    // FETCH PRODUCTS (SAFE)
+    // -------------------------
+    useEffect(() => {
+        const fetch = async () => {
+            const currentRequest = ++requestIdRef.current;
+
+            console.log("FETCH START:", {
+                requestId: currentRequest,
+                query
+            });
+
             const data = await getProducts({
-                pageNumber,
+                pageNumber: query.pageNumber,
                 pageSize,
-                search,
-                categoryId: categoryId === "" ? undefined : categoryId,
-                minPrice: minPrice === "" ? undefined : Number(minPrice),
-                maxPrice: maxPrice === "" ? undefined : Number(maxPrice)
+                search: query.search,
+                categoryId:
+                    query.categoryId === "" ? undefined : query.categoryId,
+                minPrice:
+                    query.minPrice === "" ? undefined : Number(query.minPrice),
+                maxPrice:
+                    query.maxPrice === "" ? undefined : Number(query.maxPrice)
+            });
+
+            // -------------------------
+            // RACE CONDITION CHECK
+            // -------------------------
+            if (currentRequest !== requestIdRef.current) {
+                console.log("STALE RESPONSE IGNORED:", currentRequest);
+                return;
+            }
+
+            console.log("FETCH SUCCESS:", {
+                requestId: currentRequest,
+                items: data.items.length
             });
 
             setProducts(data.items);
             setTotalPages(data.totalPages);
+        };
 
-            if (data.totalPages > 0 && pageNumber > data.totalPages)
-            {
-                setPageNumber(1);
-            }
-        } catch (error)
-        {
-            console.error("Failed to fetch products", error);
-        }
-    };
+        fetch();
+    }, [query]);
 
     // -------------------------
-    // FETCH CATEGORIES
+    // UPDATE QUERY HELPER
     // -------------------------
-    useEffect(() =>
-    {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () =>
-    {
-        try
-        {
-            const data = await getCategories();
-            setCategories(data);
-        } catch (error)
-        {
-            console.error("Failed to fetch categories", error);
-        }
+    const updateQuery = (updates: Partial<typeof query>) => {
+        setQuery(prev => ({
+            ...prev,
+            ...updates
+        }));
     };
-
-    const safeTotalPages = Math.max(totalPages, 1);
 
     return (
         <div className={styles.page}>
             <NavBar />
+
             <h1 className={styles.header}>Products</h1>
 
-
-            {/* FILTERS */}
             <ProductFilters
-                search={search}
-                setSearch={setSearch}
-                categoryId={categoryId}
-                setCategoryId={setCategoryId}
-                minPrice={minPrice}
-                setMinPrice={setMinPrice}
-                maxPrice={maxPrice}
-                setMaxPrice={setMaxPrice}
+                search={query.search}
+                setSearch={(val: string) =>
+                    updateQuery({ search: val, pageNumber: 1 })
+                }
+                categoryId={query.categoryId}
+                setCategoryId={(val: number | "") =>
+                    updateQuery({ categoryId: val, pageNumber: 1 })
+                }
+                minPrice={query.minPrice}
+                setMinPrice={(val: string) =>
+                    updateQuery({ minPrice: val, pageNumber: 1 })
+                }
+                maxPrice={query.maxPrice}
+                setMaxPrice={(val: string) =>
+                    updateQuery({ maxPrice: val, pageNumber: 1 })
+                }
                 categories={categories}
-                onSearch={() =>
-                {
-                    setPageNumber(1);
-                    setQueryTrigger(prev => prev + 1);
-                }}
             />
 
-            {/* GRID */}
             <div className={styles.productGrid}>
-                {products.map(product => (
-                    <ProductCard
-                        key={product.productId}
-                        product={product}
-                    />
+                {products.map(p => (
+                    <ProductCard key={p.productId} product={p} />
                 ))}
             </div>
 
-            {/* PAGINATION */}
-            <div className={styles.pagination}>
-                <PaginationControls
-                    pageNumber={pageNumber}
-                    totalPages={safeTotalPages}
-                    onPageChange={setPageNumber}
-                />
-            </div>
+            <PaginationControls
+                pageNumber={query.pageNumber}
+                totalPages={Math.max(totalPages, 1)}
+                onPageChange={(page: number) =>
+                    updateQuery({ pageNumber: page })
+                }
+            />
         </div>
     );
 }

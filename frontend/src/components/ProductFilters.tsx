@@ -2,8 +2,7 @@ import type { Category } from "../types/Category";
 import SearchBar from "../components/SearchBar";
 import styles from "./ProductFilters.module.css";
 
-interface ProductFilterProps
-{
+interface ProductFilterProps {
     search: string;
     setSearch: (v: string) => void;
 
@@ -17,8 +16,6 @@ interface ProductFilterProps
     setMaxPrice: (v: string) => void;
 
     categories: Category[];
-
-    onSearch: () => void;
 }
 
 export default function ProductFilters({
@@ -30,10 +27,8 @@ export default function ProductFilters({
     setMinPrice,
     maxPrice,
     setMaxPrice,
-    categories,
-    onSearch
-}: ProductFilterProps)
-{
+    categories
+}: ProductFilterProps) {
     return (
         <div className={styles.filters}>
 
@@ -53,6 +48,7 @@ export default function ProductFilters({
                 }
             >
                 <option value="">All Categories</option>
+
                 {categories.map((cat) => (
                     <option
                         key={cat.categoryId}
@@ -69,9 +65,7 @@ export default function ProductFilters({
                     min="0"
                     placeholder="Min Price"
                     value={minPrice}
-                    onChange={(e) =>
-                        setMinPrice(e.target.value)
-                    }
+                    onChange={(e) => setMinPrice(e.target.value)}
                 />
 
                 <input
@@ -79,18 +73,9 @@ export default function ProductFilters({
                     min="0"
                     placeholder="Max Price"
                     value={maxPrice}
-                    onChange={(e) =>
-                        setMaxPrice(e.target.value)
-                    }
+                    onChange={(e) => setMaxPrice(e.target.value)}
                 />
             </div>
-
-            <button
-                className={styles.searchButton}
-                onClick={onSearch}
-            >
-                Search
-            </button>
 
         </div>
     );
