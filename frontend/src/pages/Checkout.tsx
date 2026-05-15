@@ -17,7 +17,7 @@ export default function CheckoutPage()
 
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-    const [orderSuccess, setOrderSuccess] = useState(false);
+    const [, setOrderSuccess] = useState(false);
 
     const [form, setForm] = useState({
         name: "",

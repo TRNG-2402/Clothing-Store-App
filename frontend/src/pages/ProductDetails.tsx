@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import NavBar from '../components/NavBar'
 import styles from './ProductDetails.module.css'
 import type { Product } from '../types/Product'
