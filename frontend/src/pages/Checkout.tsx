@@ -84,7 +84,8 @@ export default function CheckoutPage()
             shippingAddress: form.address,
             items: cartItems.map(item => ({
                 productId: item.id,
-                quantity: item.quantity
+                quantity: item.quantity,
+                finalPrice: item.price.toFixed(2)
             }))
         };
 

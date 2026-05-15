@@ -5,12 +5,15 @@ import ProductCard from "../../components/ProductCard"
 import type { Product } from "../../types/Product"
 
 const mProduct: Product = {
-    productId: 1,
+    id: 1,
     name: 'thisisaname',
     categoryId: 2,
-    description: '',
+    description: 'thisisadescription',
     price: 3.00,
-    stockQuantity: 4
+    finalPrice: 4.00,
+    hasActiveSale: false,
+    discountPercentage: undefined,
+    stockQuantity: 5
 }
 
 describe('<ProductCard />', () =>
@@ -25,6 +28,6 @@ describe('<ProductCard />', () =>
 
         expect(screen.getByText('thisisaname')).toBeInTheDocument();
         expect(screen.getByText('$3.00')).toBeInTheDocument();
-        expect(screen.getByText('Stock: 4')).toBeInTheDocument();
+        expect(screen.getByText('Stock: 5')).toBeInTheDocument();
     })
 })
