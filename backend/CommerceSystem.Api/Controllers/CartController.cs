@@ -23,18 +23,20 @@ public class CartController : ControllerBase
     {
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userIdString))
+    [HttpGet]
+    public async Task<ActionResult<List<CartItemDTO>>> GetCartItems()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim == null)
             return Unauthorized();
 
-        if (!int.TryParse(userIdString, out int userId))
-            return Unauthorized(); // or BadRequest("Invalid user id");
+        var userId = int.Parse(userIdClaim);
 
         var cartItems = await _cartService.GetCartItems(userId);
 
         return Ok(cartItems);
     }
- 
-
 
     [HttpPost("items")]
     public async Task<IActionResult> AddItem(AddCartItemDto dto)
@@ -44,8 +46,10 @@ public class CartController : ControllerBase
         if (string.IsNullOrEmpty(userIdString))
             return Unauthorized();
 
-        if (!int.TryParse(userIdString, out int userId))
-            return Unauthorized(); // or BadRequest("Invalid user id");
+    [HttpPost("items")]
+    public async Task<IActionResult> AddItem(AddCartItemDto dto)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         await _cartService.InsertItem(userId, dto.ProductId, dto.Quantity);
 
@@ -58,13 +62,15 @@ public class CartController : ControllerBase
     public async Task<IActionResult> UpdateItem(UpdateCartItemDto dto)
     {
 
-        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    [HttpPut("items")]
+    public async Task<IActionResult> UpdateItem(UpdateCartItemDto dto)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        if (string.IsNullOrEmpty(userIdString))
-            return Unauthorized();
+        await _cartService.UpdateQuantity(userId, dto.ProductId, dto.Quantity);
 
-        if (!int.TryParse(userIdString, out int userId))
-            return Unauthorized(); // or BadRequest("Invalid user id");
+        return Ok();
+    }
 
         await _cartService.UpdateQuantity(userId, dto.ProductId, dto.Quantity);
 
@@ -72,25 +78,15 @@ public class CartController : ControllerBase
     }
 
 
-
-
     [HttpDelete("items/{productId}")]
     public async Task<IActionResult> DeleteItem(int productId)
     {
-        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userIdString))
-            return Unauthorized();
-
-        if (!int.TryParse(userIdString, out int userId))
-            return Unauthorized(); // or BadRequest("Invalid user id");
-
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         await _cartService.DeleteItem(userId, productId);
 
         return Ok();
     }
-
 
 
 
