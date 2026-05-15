@@ -14,7 +14,8 @@ import PaginationControls from "../components/PaginationControls";
 import ProductFilters from "../components/ProductFilters";
 import NavBar from "../components/NavBar";
 
-function Products() {
+function Products()
+{
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [totalPages, setTotalPages] = useState(1);
@@ -43,21 +44,24 @@ function Products() {
     // -------------------------
     // DEBUG LOG (STATE)
     // -------------------------
-    useEffect(() => {
+    useEffect(() =>
+    {
         console.log("QUERY UPDATED:", query);
     }, [query]);
 
     // -------------------------
     // LOAD CATEGORIES
     // -------------------------
-    useEffect(() => {
+    useEffect(() =>
+    {
         getCategories().then(setCategories);
     }, []);
 
     // -------------------------
     // APPLY URL CATEGORY ONCE
     // -------------------------
-    useEffect(() => {
+    useEffect(() =>
+    {
         setQuery(prev => ({
             ...prev,
             categoryId: urlCategoryId ? Number(urlCategoryId) : "",
@@ -68,8 +72,10 @@ function Products() {
     // -------------------------
     // FETCH PRODUCTS (SAFE)
     // -------------------------
-    useEffect(() => {
-        const fetch = async () => {
+    useEffect(() =>
+    {
+        const fetch = async () =>
+        {
             const currentRequest = ++requestIdRef.current;
 
             console.log("FETCH START:", {
@@ -92,7 +98,8 @@ function Products() {
             // -------------------------
             // RACE CONDITION CHECK
             // -------------------------
-            if (currentRequest !== requestIdRef.current) {
+            if (currentRequest !== requestIdRef.current)
+            {
                 console.log("STALE RESPONSE IGNORED:", currentRequest);
                 return;
             }
@@ -112,7 +119,8 @@ function Products() {
     // -------------------------
     // UPDATE QUERY HELPER
     // -------------------------
-    const updateQuery = (updates: Partial<typeof query>) => {
+    const updateQuery = (updates: Partial<typeof query>) =>
+    {
         setQuery(prev => ({
             ...prev,
             ...updates
@@ -145,11 +153,20 @@ function Products() {
                 categories={categories}
             />
 
-            <div className={styles.productGrid}>
-                {products.map(p => (
-                    <ProductCard key={p.productId} product={p} />
-                ))}
-            </div>
+
+            {products.length === 0 ? (
+                <div className={styles.emptyState}>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or search terms.</p>
+                </div>
+            ) : (
+                <div className={styles.productGrid}>
+                    {products.map(p => (
+                        <ProductCard key={p.id} product={p} />
+                    ))}
+                </div>
+            )}
+
 
             <PaginationControls
                 pageNumber={query.pageNumber}

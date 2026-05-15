@@ -14,6 +14,11 @@ public class ProductServiceTest
     public async Task GetProductByIdAsync_ExistingProduct_ReturnsProduct()
     {
         var repo = new Mock<IProductRepository>();
+        var saleService = new Mock<ISaleService>();
+
+        saleService
+            .Setup(x => x.GetActiveSalesAsync())
+            .ReturnsAsync(new List<Sale>());
 
         repo.Setup(x => x.GetByIdAsync(1))
             .ReturnsAsync(new Product
@@ -24,7 +29,7 @@ public class ProductServiceTest
                 StockQuantity = 5
             });
 
-        var service = new ProductService(repo.Object);
+        var service = new ProductService(repo.Object, saleService.Object);
 
         var result = await service.GetProductByIdAsync(1);
 
@@ -37,6 +42,7 @@ public class ProductServiceTest
     public async Task UpdateProductAsync_ValidRequest_UpdatesProductFields()
     {
         var repo = new Mock<IProductRepository>();
+        var saleService = new Mock<ISaleService>();
 
         var product = new Product
         {
@@ -46,10 +52,14 @@ public class ProductServiceTest
             StockQuantity = 5
         };
 
+        saleService
+            .Setup(x => x.GetActiveSalesAsync())
+            .ReturnsAsync(new List<Sale>());
+
         repo.Setup(x => x.GetByIdAsync(1))
             .ReturnsAsync(product);
 
-        var service = new ProductService(repo.Object);
+        var service = new ProductService(repo.Object, saleService.Object);
 
         var request = new UpdateProductRequest
         {
