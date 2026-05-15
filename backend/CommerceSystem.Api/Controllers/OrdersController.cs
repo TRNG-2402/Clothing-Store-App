@@ -114,16 +114,24 @@ public class OrdersController : ControllerBase
         {
             var product = await _context.Products.FindAsync(item.ProductId);
 
+            if (product == null)
+                return BadRequest($"Product {item.ProductId} not found");
+
+            if (product.StockQuantity < item.Quantity)
+                return BadRequest($"Not enough stock for product {product.Name}");
+
+            product.StockQuantity -= item.Quantity;
+
             var orderItem = new OrderItem
             {
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
-                UnitPrice = product.Price
+                UnitPrice = item.FinalPrice //product.Price
             };
 
             total += orderItem.UnitPrice * orderItem.Quantity;
 
-          order.Items.Add(orderItem);
+            order.Items.Add(orderItem);
         }
 
         order.Total = total;
@@ -200,14 +208,14 @@ public class OrdersController : ControllerBase
     }
 
 
-[HttpGet("my-orders")]
-[Authorize]
-public async Task<ActionResult<List<OrderSummaryDTO>>> GetMyOrders()
-{
-    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+    [HttpGet("my-orders")]
+    [Authorize]
+    public async Task<ActionResult<List<OrderSummaryDTO>>> GetMyOrders()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-    var result = await _orderService.GetMyOrdersAsync(userId);
+        var result = await _orderService.GetMyOrdersAsync(userId);
 
-    return Ok(result);
-}
+        return Ok(result);
+    }
 }
