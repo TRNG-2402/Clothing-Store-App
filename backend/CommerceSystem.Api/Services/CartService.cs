@@ -9,36 +9,71 @@ public class CartService : ICartService
     private readonly ICartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUserRepository _userRepository;
+    private readonly ISaleService _saleService;
 
     public CartService(
         ICartRepository cartRepository,
         IProductRepository productRepository,
-        IUserRepository userRepository)
+        IUserRepository userRepository, ISaleService saleService)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
         _userRepository = userRepository;
+        _saleService = saleService;
     }
 
-
+    /*
      public async Task<List<CartItemDTO>> GetCartItems(int id)
     {
         return await _cartRepository.GetCartItems(id);
     }
+    */
+    public async Task<List<CartItemDTO>> GetCartItems(int userId)
+    {
+        var cartItems = await _cartRepository.GetCartItems(userId);
+
+        var activeSales = await _saleService.GetActiveSalesAsync();
+
+        var salesByCategory = activeSales
+            .GroupBy(s => s.CategoryId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        return cartItems.Select(ci =>
+        {
+            salesByCategory.TryGetValue(ci.Product.CategoryId, out var sale);
+
+            var discount = sale?.DiscountPercentage ?? 0;
+
+            var finalPrice = discount > 0
+                ? ci.Product.Price - (ci.Product.Price * discount / 100)
+                : ci.Product.Price;
+
+            return new CartItemDTO
+            {
+                Id = ci.Product.Id,
+                Name = ci.Product.Name,
+                SKU = ci.Product.SKU,
+                Price = finalPrice,
+                Quantity = ci.Quantity,
+                StockQuantity = ci.Product.StockQuantity
+            };
+        }).ToList();
+    }
+
 
     public async Task InsertItem(int userId, int productId, int quantity)
     {
-         await _cartRepository.InsertItem(userId,productId,quantity);
+        await _cartRepository.InsertItem(userId, productId, quantity);
     }
 
     public async Task UpdateQuantity(int userId, int productId, int quantity)
     {
-         await _cartRepository.UpdateQuantity(userId,productId,quantity);
+        await _cartRepository.UpdateQuantity(userId, productId, quantity);
     }
 
     public async Task DeleteItem(int userId, int productId)
     {
-         await _cartRepository.DeleteItem(userId,productId);
+        await _cartRepository.DeleteItem(userId, productId);
     }
 
 
@@ -161,6 +196,5 @@ public class CartService : ICartService
 
         await _cartRepository.SaveChangesAsync();
     }
-    
+
 }
- 

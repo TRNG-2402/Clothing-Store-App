@@ -142,7 +142,6 @@ public class CartController : ControllerBase
         } */
 
     [HttpDelete]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ClearCart()
     {
         var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -152,7 +151,7 @@ public class CartController : ControllerBase
 
         if (!int.TryParse(userIdString, out int userId))
             return Unauthorized(); // or BadRequest("Invalid user id");
-
+System.Console.WriteLine("in cleaer cart");
 
         await _cartService.ClearCartAsync(userId);
 

@@ -1,0 +1,66 @@
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.dropdown {
+  margin-bottom: 20px;
+}
+
+.summary {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 10px;
+  background: #eee;
+  border-radius: 6px;
+}
+
+.cartBox {
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+
+.cartItem {
+  display: grid;
+  grid-template-columns: 1fr 80px 100px;
+  align-items: center;
+  gap: 10px;
+}
+
+.name {
+  justify-self: start;
+  text-align: left;
+}
+
+.qty {
+  justify-self: center;
+}
+
+.price {
+  justify-self: end;
+  text-align: right;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.submitBtn {
+  padding: 10px;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+}

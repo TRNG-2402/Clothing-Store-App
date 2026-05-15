@@ -2,6 +2,7 @@ import { data, Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import styles from "./Cart.module.css";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type CartItem = {
   id: number;
@@ -79,6 +80,13 @@ export default function CartPage() {
     );
   };
 
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    navigate("/checkout");
+  };
+
+
   // -------------------------
   // YOUR ORIGINAL CALCULATIONS (UNCHANGED)
   // -------------------------
@@ -98,11 +106,11 @@ const subtotal = cartItems.reduce(
 
       <div className={styles.container}>
         <div className={styles.left}>
-          <h2 className={styles.title}>Shopping Bag</h2>
+          <h2 className={styles.title}>Shopping Cart</h2>
 
           <div className={styles.tabs}>
             <span className={styles.activeTab}>
-              In Bag ({cartItems.length})
+              In Cart ({cartItems.length})
             </span>
           </div>
 
@@ -171,9 +179,9 @@ const subtotal = cartItems.reduce(
             <strong>${subtotal.toFixed(2)}</strong>
           </div>
 
-          <button className={styles.checkoutBtn}>
-            Checkout
-          </button>
+          <button onClick={handleCheckout} className={styles.checkoutBtn}>
+  Checkout
+</button>
         </div>
       </div>
     </div>
