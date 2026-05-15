@@ -26,7 +26,7 @@ public class OrderServiceTests
         };
 
         orderRepo
-            .Setup(r => r.GetByIdAsync(1))
+            .Setup(r => r.GetByIdWithProductsAsync(1))
             .ReturnsAsync(expectedOrder);
 
         var service = new OrderService(
