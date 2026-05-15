@@ -22,32 +22,61 @@ Sales can be created, updated, and deleted by admins. Sales have a start date an
 
 # API Endpoints
 POST /api/auth/register - Public, register a new user
+
 POST /api/auth/login - Public, login and receive JWT
+
 GET /api/user/{id} - User, get user profile
+
 GET /api/user/{id}/orders - User, get all orders for a user
+
 PATCH /api/user/{id} - User, update name or email
+
 GET /api/product - Public, get all products
+
 GET /api/product/{id} - Public, get product by ID
+
 POST /api/product - Admin, create a product
+
 PUT /api/product/{id} - Admin, update a product
+
 DELETE /api/product/{id} - Admin, delete a product
+
 GET /api/category - Public, get all categories
+
 GET /api/category/{id} - Public, get category by ID
+
 GET /api/category/{id}/products - Public, get products in a category
+
 POST /api/category - Admin, create a category
+
 PUT /api/category/{id} - Admin, update a category
+
 DELETE /api/category/{id} - Admin, delete a category
+
 GET /api/order/{id} - User, get order by ID
+
 POST /api/order - User, place a new order
+
 PATCH /api/order/{id} - User, update order status
+
 GET /api/cart/{userId} - User, get user's cart
+
 POST /api/cart/{userId}/items - User, add item to cart
+
 PATCH /api/cart/{userId}/items/{productId} - User, update cart item quantity
+
 DELETE /api/cart/{userId}/items/{productId} - User, remove item from cart
+
 DELETE /api/cart/{userId} - User, clear entire cart
+
 GET /api/sale - Public, get all sales
+
 GET /api/sale/active - Public, get currently active sales
+
 GET /api/sale/{id} - Public, get sale by ID
+
 POST /api/sale - Admin, create a sale
+
 PUT /api/sale/{id} - Admin, update a sale
+
 DELETE /api/sale/{id} - Admin, delete a sale
