@@ -24,6 +24,7 @@ function ProductCard({ product }: ProductCardProps)
           {product.name}
         </h3>
 
+
         <div
           className={`${styles.priceSection} ${
             !product.hasActiveSale ? styles.centerPrice : ""

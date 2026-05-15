@@ -17,7 +17,7 @@ public class ProductService : IProductService
     }
 
     // ProductDtoMapping
-    private ProductDto MapToDto(Product product, Sale? activeSale)
+    public ProductDto MapToDto(Product product, Sale? activeSale)
     {
         var discount = activeSale?.DiscountPercentage ?? 0;
 
