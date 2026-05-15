@@ -13,6 +13,7 @@ import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Categories from './pages/Categories'
 import ProtectedRoute from './components/ProtectedRoute'
+import Checkout from './pages/Checkout'
 
 function App()
 {
@@ -27,6 +28,8 @@ function App()
       <Route path='/product/:id' element={<ProductDetails />} />
 
       <Route path='/cart' element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+
+      <Route path='/checkout' element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
 
       <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
