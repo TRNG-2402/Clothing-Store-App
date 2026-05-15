@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect, } from "vitest"
 import { act, render, screen } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import { MemoryRouter } from "react-router-dom"
 import CartPage from "../../pages/Cart"
+
 
 describe('<CartPage/>', () =>
 {
@@ -105,14 +107,63 @@ describe('<CartPage/>', () =>
         })
 
         //checking that price, item changed
-        var newTotal = screen.getByText('Items').nextElementSibling?.textContent
-        var newPrice = screen.getByText('Subtotal').nextElementSibling?.textContent
+        const newTotal = screen.getByText('Items').nextElementSibling?.textContent
+        const newPrice = screen.getByText('Subtotal').nextElementSibling?.textContent
 
         expect(newTotal === `${oldTotal - Number.parseInt(quantity)}`).toBeTruthy();
         expect(newPrice === `${oldPrice - priceOfDeletedItem}`);
 
         //check that item has disappeared from user perspective
         expect(deleteButton.checkVisibility).toBeFalsy();
+
+    })
+    it('updates the quantity of an item when the combobox changes option', async () =>
+    {
+        const cartItems = [
+            { id: 1, name: "Item A", quantity: 1, price: 12.00, stockQuantity: 5 },
+            { id: 2, name: "Item B", quantity: 2, price: 8.50, stockQuantity: 10 }
+        ];
+
+        var oldTotal = 0;
+        var oldPrice = 0;
+        var priceOfItem = 0;
+
+        const user = userEvent.setup();
+
+        cartItems.forEach(item =>
+        {
+            oldTotal += item.quantity;
+            oldPrice += item.quantity * item.price;
+            if (item.id === 1)
+            {
+                priceOfItem = item.price;
+            }
+        });
+
+        render(
+            <MemoryRouter>
+                <CartPage />
+            </MemoryRouter>
+        )
+
+
+
+        expect(screen.getByText('Items').nextElementSibling).toHaveTextContent(`${oldTotal}`);
+        expect(screen.getByText('Subtotal').nextElementSibling).toHaveTextContent(`${oldPrice}`);
+
+        var select = screen.getAllByRole('combobox')[0] as HTMLSelectElement
+        var opt = select.options[1];
+
+        await user.selectOptions(select, opt);
+
+
+
+        const newTotal = screen.getByText('Items').nextElementSibling?.textContent
+        const newPrice = screen.getByText('Subtotal').nextElementSibling?.textContent
+
+        expect(newTotal === `${oldTotal + 1}`).toBeTruthy();
+        expect(newPrice === `$${(oldPrice + priceOfItem).toFixed(2)}`).toBeTruthy();
+
 
     })
 
