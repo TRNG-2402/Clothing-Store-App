@@ -129,7 +129,7 @@ public class StoreDbContext : DbContext
         modelBuilder.Entity<CartItem>()
             .HasKey(ci => new { ci.CartId, ci.ProductId }); //Composite PK
 
-        
+
         modelBuilder.Entity<CartItem>()
             .HasOne(ci => ci.Cart)
             .WithMany(c => c.CartItems)

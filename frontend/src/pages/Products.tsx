@@ -1,95 +1,183 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import NavBar from '../components/NavBar'
-import styles from './Products.module.css'
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  categoryName: string;
-};
+import styles from "../components/Products.module.css";
 
-export default function Products()
+import type { Product } from "../types/Product";
+import type { Category } from "../types/Category";
+
+import { getProducts } from "../services/productService";
+import { getCategories } from "../services/categoryService";
+
+import ProductCard from "../components/ProductCard";
+import PaginationControls from "../components/PaginationControls";
+import ProductFilters from "../components/ProductFilters";
+import NavBar from "../components/NavBar";
+
+function Products()
 {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
 
-  const [products, setProducts] = useState<Product[]>([]);
+    const [searchParams] = useSearchParams();
+    const urlCategoryId = searchParams.get("categoryId");
 
-  const fakeProducts: Product[] = [
-    { id: 1, name: "Laptop", price: 500, categoryName: "other" },
-    { id: 2, name: "Phone", price: 1000, categoryName: "other" },
-    { id: 3, name: "Shirt", price: 24.99, categoryName: "tops" },
-    { id: 4, name: "Pants", price: 30, categoryName: "bottoms"}
-  ];
+    const pageSize = 12;
 
-  const getProductsByCategory = (categoryName: string): Product[] =>
-  {
-    return fakeProducts.filter(p => p.categoryName === categoryName);
-  };
+    // -------------------------
+    // SINGLE SOURCE OF TRUTH
+    // -------------------------
+    const [query, setQuery] = useState({
+        pageNumber: 1,
+        search: "",
+        categoryId: "" as number | "",
+        minPrice: "",
+        maxPrice: ""
+    });
 
-  const { categoryName } = useParams<{ categoryName: string }>();
+    // -------------------------
+    // RACE CONDITION GUARD
+    // -------------------------
+    const requestIdRef = useRef(0);
 
-  useEffect(() =>
-  {
-    if (!categoryName) return;
+    // -------------------------
+    // DEBUG LOG (STATE)
+    // -------------------------
+    useEffect(() =>
+    {
+        console.log("QUERY UPDATED:", query);
+    }, [query]);
 
-    const data = getProductsByCategory(categoryName);
-    setProducts(data);
-  }, [categoryName]);
+    // -------------------------
+    // LOAD CATEGORIES
+    // -------------------------
+    useEffect(() =>
+    {
+        getCategories().then(setCategories);
+    }, []);
 
- 
-  const [sortOrder, setSortOrder] = useState<string>(""); // "low" | "high"
+    // -------------------------
+    // APPLY URL CATEGORY ONCE
+    // -------------------------
+    useEffect(() =>
+    {
+        setQuery(prev => ({
+            ...prev,
+            categoryId: urlCategoryId ? Number(urlCategoryId) : "",
+            pageNumber: 1
+        }));
+    }, [urlCategoryId]);
 
-  useEffect(() => {
-  if (!categoryName) return;
+    // -------------------------
+    // FETCH PRODUCTS (SAFE)
+    // -------------------------
+    useEffect(() =>
+    {
+        const fetch = async () =>
+        {
+            const currentRequest = ++requestIdRef.current;
 
-  let data = fakeProducts.filter(
-    p => p.categoryName === categoryName
-  );
+            console.log("FETCH START:", {
+                requestId: currentRequest,
+                query
+            });
 
-  if (sortOrder === "low") {
-    data = data.sort((a, b) => a.price - b.price);
-  }
+            const data = await getProducts({
+                pageNumber: query.pageNumber,
+                pageSize,
+                search: query.search,
+                categoryId:
+                    query.categoryId === "" ? undefined : query.categoryId,
+                minPrice:
+                    query.minPrice === "" ? undefined : Number(query.minPrice),
+                maxPrice:
+                    query.maxPrice === "" ? undefined : Number(query.maxPrice)
+            });
 
-  if (sortOrder === "high") {
-    data = data.sort((a, b) => b.price - a.price);
-  }
+            // -------------------------
+            // RACE CONDITION CHECK
+            // -------------------------
+            if (currentRequest !== requestIdRef.current)
+            {
+                console.log("STALE RESPONSE IGNORED:", currentRequest);
+                return;
+            }
 
-  setProducts([...data]); // spread = avoid mutation issues
-}, [categoryName, sortOrder]);
+            console.log("FETCH SUCCESS:", {
+                requestId: currentRequest,
+                items: data.items.length
+            });
 
-  return (
-    <div style={{ backgroundColor: "#f5f5f5" , minHeight: "100vh" }}>
-      <NavBar />
+            setProducts(data.items);
+            setTotalPages(data.totalPages);
+        };
 
-   <div className={styles.header}>
-  <h2 style={{ color: "#777"}}>{categoryName}</h2>
+        fetch();
+    }, [query]);
 
-  <select onChange={(e) => setSortOrder(e.target.value)}>
-    <option value="">Sort</option>
-    <option value="low">Lowest Price</option>
-    <option value="high">Highest Price</option>
-  </select>
-</div>
-
-      <div className={styles.grid}>
-  {products.map((p: Product) => (
-    <div key={p.id} className={styles.card}>
-
-      <div className={styles.title}>{p.name}</div>
-
-      <div className={styles.price}>
-        ${p.price.toFixed(2)}
-      </div>
-
-      <Link to={`'/product/${p.id}`} className={styles.viewButton}>
-    View Product
-  </Link>
+    // -------------------------
+    // UPDATE QUERY HELPER
+    // -------------------------
+    const updateQuery = (updates: Partial<typeof query>) =>
+    {
+        setQuery(prev => ({
+            ...prev,
+            ...updates
+        }));
+    };
 
 
-    </div>
-  ))}
-</div>
 
-     </div>)
+    return (
+        <div className={styles.page}>
+            <NavBar />
+
+            <h1 className={styles.header}>Products</h1>
+
+            <ProductFilters
+                search={query.search}
+                setSearch={(val: string) =>
+                    updateQuery({ search: val, pageNumber: 1 })
+                }
+                categoryId={query.categoryId}
+                setCategoryId={(val: number | "") =>
+                    updateQuery({ categoryId: val, pageNumber: 1 })
+                }
+                minPrice={query.minPrice}
+                setMinPrice={(val: string) =>
+                    updateQuery({ minPrice: val, pageNumber: 1 })
+                }
+                maxPrice={query.maxPrice}
+                setMaxPrice={(val: string) =>
+                    updateQuery({ maxPrice: val, pageNumber: 1 })
+                }
+                categories={categories}
+            />
+
+
+            {products.length === 0 ? (
+                <div className={styles.emptyState}>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or search terms.</p>
+                </div>
+            ) : (
+                <div className={styles.productGrid}>
+                    {products.map(p => (
+                        <ProductCard key={p.id} product={p} />
+                    ))}
+                </div>
+            )}
+
+            <PaginationControls
+                pageNumber={query.pageNumber}
+                totalPages={Math.max(totalPages, 1)}
+                onPageChange={(page: number) =>
+                    updateQuery({ pageNumber: page })
+                }
+            />
+        </div>
+    );
 }
+
+export default Products;

@@ -1,5 +1,6 @@
 using CommerceSystem.Api.Data;
 using CommerceSystem.Api.Models;
+using CommerceSystem.Api.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace CommerceSystem.Api.Repositories;
@@ -19,9 +20,77 @@ public class ProductRepository : IProductRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public async Task<List<Product>> GetAllAsync()
+    public async Task<PagedResult<Product>> GetAllAsync(ProductQueryParams queryParams)
     {
-        return await _context.Products.ToListAsync();
+        var query = _context.Products
+            .AsNoTracking() // Read only
+            .AsQueryable();
+
+        // Filtering
+        if (!string.IsNullOrEmpty(queryParams.Search))
+        {
+            query = query.Where(p => p.Name.Contains(queryParams.Search));
+        }
+
+        if (queryParams.CategoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == queryParams.CategoryId.Value);
+        }
+
+        if (queryParams.MinPrice.HasValue)
+        {
+            query = query.Where(p => p.Price >= queryParams.MinPrice.Value);
+        }
+
+        if (queryParams.MaxPrice.HasValue)
+        {
+            query = query.Where(p => p.Price <= queryParams.MaxPrice.Value);
+        }
+
+        // Sort
+        if (!string.IsNullOrEmpty(queryParams.SortBy))
+        {
+            query = queryParams.SortBy.ToLower() switch
+            {
+                "price" => queryParams.Descending
+                    ? query.OrderByDescending(p => p.Price)
+                    : query.OrderBy(p => p.Price),
+
+                "name" => queryParams.Descending
+                    ? query.OrderByDescending(p => p.Name)
+                    : query.OrderBy(p => p.Name),
+
+                _ => query.OrderBy(p => p.Id)
+            };
+        }
+        else
+        {
+            query = query.OrderBy(p => p.Id); // Default sorting by id: always ensure consistent ordering
+        }
+
+
+        // Count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Pagination
+        var items = await query
+            .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
+            .Take(queryParams.PageSize)
+            .ToListAsync();
+
+        var totalPages = (int)Math.Ceiling(
+            totalCount / (double)queryParams.PageSize);
+
+        return new PagedResult<Product>
+        {
+            Items = items,
+            PageNumber = queryParams.PageNumber,
+            PageSize = queryParams.PageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+
+        //return await _context.Products.ToListAsync();
     }
 
     public async Task AddAsync(Product product)

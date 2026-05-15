@@ -14,6 +14,13 @@ public class CartRepository : ICartRepository
         _context = context;
     }
 
+    public async Task<Cart?> GetByUserIdAsync(int userId)
+    {
+        return await _context.Carts
+            .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+    }
 
     public async Task<List<CartItemDTO>> GetCartItems(int userId)
     {
@@ -21,9 +28,12 @@ public class CartRepository : ICartRepository
         .Where(ci => ci.Cart.UserId == userId)
         .Select(ci => new CartItemDTO
         {
+            Id = ci.Product.Id,
             Name = ci.Product.Name,
             SKU = ci.Product.SKU,
-            Price = ci.Product.Price
+            Price = ci.Product.Price,
+            Quantity = ci.Quantity,
+            StockQuantity = ci.Product.StockQuantity
         })
             .ToListAsync();
 
@@ -73,12 +83,29 @@ public class CartRepository : ICartRepository
     //updateQuantity
     public async Task UpdateQuantity(int userId, int productId, int quantity)
     {
+        var cart = await _context.Carts
+    .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (cart == null)
+            return;
+
         var cartItem = await _context.CartItems
-            .Where(ci => ci.Cart.UserId == userId && ci.ProductId == productId)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(ci =>
+                ci.CartId == cart.Id &&
+                ci.ProductId == productId);
 
         if (cartItem == null)
-            return; // or throw
+        {
+            System.Console.WriteLine("cartItem not found");
+            System.Console.WriteLine(userId);
+            System.Console.WriteLine(cart.Id);
+            System.Console.WriteLine(productId);
+
+
+            return;
+        }
+            
+
 
         if (quantity <= 0)
         {
@@ -106,5 +133,17 @@ public class CartRepository : ICartRepository
 
         await _context.SaveChangesAsync();
     }
-    
+
+
+
+
+    public async Task AddAsync(Cart cart)
+    {
+        await _context.Carts.AddAsync(cart);
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

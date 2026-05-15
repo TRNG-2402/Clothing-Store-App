@@ -1,0 +1,75 @@
+.card {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.75rem;
+
+    padding: 1rem;
+
+    border-radius: 10px;
+
+    background: #1f1f1f;
+    border: 1px solid #333;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    border-color: #4a90e2;
+}
+
+.name {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.priceSection {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    flex-wrap: wrap;
+}
+
+.originalPrice {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.salePrice {
+    color: #d62828;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.normalPrice {
+    font-weight: 600;
+}
+
+.saleTag {
+    background: #d62828;
+    color: white;
+
+    padding: 0.2rem 0.5rem;
+
+    border-radius: 999px;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.stock {
+    margin-top: auto;
+
+    color: #bbb;
+    font-size: 0.9rem;
+}
+
+.centerPrice {
+    justify-content: center;
+}

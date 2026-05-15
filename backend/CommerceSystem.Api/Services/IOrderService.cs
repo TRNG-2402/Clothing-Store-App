@@ -8,4 +8,5 @@ public interface IOrderService
     Task<Order> CreateOrderAsync(CreateOrderRequest request);
     Task<Order> GetOrderByIdAsync(int orderId);
     Task<Order> UpdateOrderAsync(int id, UpdateOrderRequest request);
+    Task<List<OrderSummaryDTO>> GetMyOrdersAsync(int userId);
 }
