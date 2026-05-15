@@ -121,8 +121,7 @@ public class OrderService : IOrderService
             .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == id);
         */
-        var order = await _orderRepository.GetByIdAsync(Id);
-
+        var order = await _orderRepository.GetByIdWithProductsAsync(Id);
         if (order == null)
             throw new OrderNotFoundException($"Order id {Id} not found");
         /*

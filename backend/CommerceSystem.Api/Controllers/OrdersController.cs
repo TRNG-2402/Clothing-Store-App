@@ -4,6 +4,9 @@ using CommerceSystem.Api.Models;
 using CommerceSystem.Api.Services;
 using CommerceSystem.Api.DTOs;
 using CommerceSystem.Api.Exceptions;
+using System.Security.Claims;
+using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace CommerceSystem.Api.Controllers;
 
@@ -78,7 +81,7 @@ public class OrdersController : ControllerBase
     // GetOrderById
     [HttpGet("{id}")]
     //[HttpGet("/api/users/{userId}/orders/{orderId}")]
-    public async Task<ActionResult<OrderDto>> GetById(int id)
+    public async Task<ActionResult<Order>> GetById(int id)
     {
         try
         {
@@ -87,29 +90,26 @@ public class OrdersController : ControllerBase
             var dto = new OrderDto
             {
                 Id = order.Id,
+                Status = order.Status.ToString(),
+                CreatedAt = order.CreatedAt,
+                ShippingAddress = order.ShippingAddress,
                 Total = order.Total,
                 Items = order.Items.Select(i => new OrderItemDto
                 {
                     ProductId = i.ProductId,
+                    ProductName = i.Product.Name,
                     Quantity = i.Quantity,
                     UnitPrice = i.UnitPrice
                 }).ToList()
             };
 
             return Ok(dto); // 200
-
-            //return Ok(order); // 200
         }
         catch (OrderNotFoundException ex)
         {
             return NotFound(ex.Message); // 404
         }
-        /*
-        catch (UnauthorizedAccessException ex)
-        {
-            return Forbid(ex.Message); // 403
-        }
-        */
+
 
     }
 
@@ -142,19 +142,14 @@ public class OrdersController : ControllerBase
     }
 
 
-    [HttpGet("my-orders")]
-    [Authorize]
-    public async Task<ActionResult<List<OrderSummaryDTO>>> GetMyOrders(int userId)
-    {
+[HttpGet("my-orders")]
+[Authorize]
+public async Task<ActionResult<List<OrderSummaryDTO>>> GetMyOrders()
+{
+    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-        try
-        {
-            var result = await _orderService.GetMyOrdersAsync(userId);
-            return Ok(result);
-        }
-        catch (OrderNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-    }
+    var result = await _orderService.GetMyOrdersAsync(userId);
+
+    return Ok(result);
+}
 }

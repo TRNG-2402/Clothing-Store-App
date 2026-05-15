@@ -9,4 +9,7 @@ public interface IOrderRepository
     Task AddAsync(Order order);
     Task SaveChangesAsync();
     Task<List<Order>> GetByUserIdWithProductsAsync(int userId);
+
+    Task<Order?> GetByIdWithProductsAsync(int id);
+
 }
