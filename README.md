@@ -20,17 +20,6 @@ Categories can be browsed by anyone. Admins can add, update, and delete categori
 
 Sales can be created, updated, and deleted by admins. Sales have a start date and an end date. Active sales apply a discount percentage to products within a given category. Sale price is reflected on product listings.
 
-# Entity Relationships
-User ──1:1──> Cart ──1:Many──> CartItem <──Many:1── Product <───
- │                                                             │
-1:Many                                                      Many:1 
- │                                                             │
-Order ──1:Many──> OrderItem <──1:Many── Product <──1:Many── Category ──1:Many──> Sale
- │
-Many:1
- │
-OrderStatus
-
 # API Endpoints
 POST /api/auth/register - Public, register a new user
 POST /api/auth/login - Public, login and receive JWT
