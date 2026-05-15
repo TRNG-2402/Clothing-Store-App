@@ -11,7 +11,7 @@ interface ProductCardProps
 function ProductCard({ product }: ProductCardProps)
 {
     return (
-        <Link to={`/product/${product.productId}`}>
+        <Link to={`/product/${product.id}`}>
             <div className={styles.card}>
 
                 <h3 className={styles.name}>
