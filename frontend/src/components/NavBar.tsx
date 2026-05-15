@@ -4,43 +4,46 @@ import styles from "./NavBar.module.css"
 import cart from "../assets/cart.png";
 import user from "../assets/user.png";
 
-export default function NavBar()
-{
-    return (
-        <nav className={styles.navbar}>
-            <div className={styles.topRow}>
+export default function NavBar() {
+  return (
+    <nav className={styles.navbar}>
+      <div className={styles.topRow}>
 
-                {/* LEFT / LOGO */}
-                <div className={styles.logo}>
-                    <Link to="/" className={styles.link}>
-                        Home
-                    </Link>
-                </div>
+        {/* LEFT / LOGO */}
+        <div className={styles.logo}>
+          <Link to="/" className={styles.link}>
+            Home
+          </Link>
+        </div>
 
-                {/* MAIN NAV */}
-                <div className={styles.mainLinks}>
-                    <Link to="/categories" className={styles.link}>
-                        Categories
-                    </Link>
+        {/* MAIN NAV */}
+        <div className={styles.mainLinks}>
+          <Link to="/categories" className={styles.link}>
+            Categories
+          </Link>
 
-                    <Link to="/products" className={styles.link}>
-                        Products
-                    </Link>
-                </div>
+          <Link to="/products" className={styles.link}>
+            Products
+          </Link>
+        </div>
 
-                {/* RIGHT ACTIONS */}
-                <div className={styles.icons}>
-                    <Link to="/profile" className={styles.link}>
-                        <img src={user} width="25" height="25" alt="" />
-                    </Link>
+        {/* RIGHT ACTIONS */}
+        <div className={styles.actions}>
+          {/* <input placeholder="Search..." /> */}
 
-                    <Link to="/cart" className={styles.link}>
-                        <img src={cart} width="25" height="25" alt="" />
-                    </Link>
-                </div>
+          <div className={styles.icons}>
+            <Link to="/profile" className={styles.link}>
+              <img src={user} width="25" height="25" alt="" />
+            </Link>
 
+            <Link to="/cart" className={styles.link}>
+              <img src={cart} width="25" height="25" alt="" />
+            </Link>
+          </div>
 
-            </div>
-        </nav>
-    )
+        </div> {/* ✅ THIS WAS MISSING */}
+
+      </div>
+    </nav>
+  );
 }

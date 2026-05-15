@@ -127,6 +127,8 @@ function Products()
         }));
     };
 
+
+
     return (
         <div className={styles.page}>
             <NavBar />
@@ -166,7 +168,6 @@ function Products()
                     ))}
                 </div>
             )}
-
 
             <PaginationControls
                 pageNumber={query.pageNumber}

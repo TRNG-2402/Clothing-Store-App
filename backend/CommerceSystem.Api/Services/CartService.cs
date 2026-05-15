@@ -20,7 +20,31 @@ public class CartService : ICartService
         _userRepository = userRepository;
     }
 
-    // GetCartByUserId
+
+     public async Task<List<CartItemDTO>> GetCartItems(int id)
+    {
+        return await _cartRepository.GetCartItems(id);
+    }
+
+    public async Task InsertItem(int userId, int productId, int quantity)
+    {
+         await _cartRepository.InsertItem(userId,productId,quantity);
+    }
+
+    public async Task UpdateQuantity(int userId, int productId, int quantity)
+    {
+         await _cartRepository.UpdateQuantity(userId,productId,quantity);
+    }
+
+    public async Task DeleteItem(int userId, int productId)
+    {
+         await _cartRepository.DeleteItem(userId,productId);
+    }
+
+
+
+
+    /* // GetCartByUserId
     public async Task<Cart> GetCartByUserIdAsync(int userId)
     {
         var user = await _userRepository.GetByIdAsync(userId);
@@ -123,6 +147,7 @@ public class CartService : ICartService
 
         await _cartRepository.SaveChangesAsync();
     }
+    */
 
     // ClearCart, call after a successful "checkout"
     public async Task ClearCartAsync(int userId)
@@ -136,4 +161,6 @@ public class CartService : ICartService
 
         await _cartRepository.SaveChangesAsync();
     }
+    
 }
+ 

@@ -18,58 +18,141 @@ public class CartController : ControllerBase
         _cartService = cartService;
     }
 
-    private int GetUserId()
-    {
-        return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetCart()
+    public async Task<ActionResult<CartItemDTO>> GetCartItems()
     {
-        var userId = GetUserId();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var cart = await _cartService.GetCartByUserIdAsync(userId);
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized();
 
-        return Ok(cart);
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(); // or BadRequest("Invalid user id");
+
+        var cartItems = await _cartService.GetCartItems(userId);
+
+        return Ok(cartItems);
     }
+ 
+
 
     [HttpPost("items")]
-    public async Task<IActionResult> AddItem([FromBody] AddCartItemRequest request)
+    public async Task<IActionResult> AddItem(AddCartItemDto dto)
     {
-        var userId = GetUserId();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var cart = await _cartService.AddItemAsync(userId, request);
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized();
 
-        return Ok(cart);
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(); // or BadRequest("Invalid user id");
+
+        await _cartService.InsertItem(userId, dto.ProductId, dto.Quantity);
+
+        return Ok();
     }
 
-    [HttpPatch("items/{productId}")]
-    public async Task<IActionResult> UpdateItemQuantity(
-        int productId,
-        [FromBody] UpdateCartItemRequest request)
+
+
+    [HttpPatch("item")]
+    public async Task<IActionResult> UpdateItem(UpdateCartItemDto dto)
     {
-        var userId = GetUserId();
 
-        var cart = await _cartService.UpdateItemQuantityAsync(userId, productId, request);
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        return Ok(cart);
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized();
+
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(); // or BadRequest("Invalid user id");
+
+        await _cartService.UpdateQuantity(userId, dto.ProductId, dto.Quantity);
+
+        return Ok();
     }
+
+
+
 
     [HttpDelete("items/{productId}")]
-    public async Task<IActionResult> RemoveItem(int productId)
+    public async Task<IActionResult> DeleteItem(int productId)
     {
-        var userId = GetUserId();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        await _cartService.RemoveItemAsync(userId, productId);
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized();
 
-        return NoContent();
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(); // or BadRequest("Invalid user id");
+
+
+        await _cartService.DeleteItem(userId, productId);
+
+        return Ok();
     }
+
+
+
+
+    /*     private int GetUserId()
+        {
+            return int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCart()
+        {
+            var userId = GetUserId();
+
+            var cart = await _cartService.GetCartByUserIdAsync(userId);
+
+            return Ok(cart);
+        }
+
+        [HttpPost("items")]
+        public async Task<IActionResult> AddItem([FromBody] AddCartItemRequest request)
+        {
+            var userId = GetUserId();
+
+            var cart = await _cartService.AddItemAsync(userId, request);
+
+            return Ok(cart);
+        }
+
+        [HttpPatch("items/{productId}")]
+        public async Task<IActionResult> UpdateItemQuantity(
+            int productId,
+            [FromBody] UpdateCartItemRequest request)
+        {
+            var userId = GetUserId();
+
+            var cart = await _cartService.UpdateItemQuantityAsync(userId, productId, request);
+
+            return Ok(cart);
+        }
+
+        [HttpDelete("items/{productId}")]
+        public async Task<IActionResult> RemoveItem(int productId)
+        {
+            var userId = GetUserId();
+
+            await _cartService.RemoveItemAsync(userId, productId);
+
+            return NoContent();
+        } */
 
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ClearCart()
     {
-        var userId = GetUserId();
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
+            return Unauthorized();
+
+        if (!int.TryParse(userIdString, out int userId))
+            return Unauthorized(); // or BadRequest("Invalid user id");
+
 
         await _cartService.ClearCartAsync(userId);
 

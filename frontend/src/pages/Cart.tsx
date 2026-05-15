@@ -1,7 +1,7 @@
-import React, { useReducer } from "react";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import styles from "./Cart.module.css";
+import React, { useEffect, useState } from "react";
 
 type CartItem = {
   id: number;
@@ -11,49 +11,81 @@ type CartItem = {
   stockQuantity: number;
 };
 
-type CartAction =
-  | { type: "DELETE_ITEM"; payload: number }
-  | { type: "UPDATE_QUANTITY"; payload: { id: number; quantity: number } };
+export default function CartPage() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-function cartReducer(state: CartItem[], action: CartAction): CartItem[]
-{
-  switch (action.type)
-  {
-    case "DELETE_ITEM":
-      return state.filter(item => item.id !== Number(action.payload));
+  const API = import.meta.env.VITE_API_BASE_URL;
 
-    case "UPDATE_QUANTITY":
-      return state.map(item =>
-      {
-        if (item.id === action.payload.id)
-        {
-          const newQty = Math.max(
-            1,
-            Math.min(action.payload.quantity, item.stockQuantity)
-          );
-          return { ...item, quantity: newQty };
+  // -------------------------
+  // GET CART FROM API
+  // -------------------------
+  useEffect(() => {
+    const fetchCart = async () => {
+      const res = await fetch(`${API}/cart`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
         }
-        return item;
       });
+      
 
-    default:
-      return state;
-  }
-}
+      const data = await res.json();
+      setCartItems(data);
+    };
+
+    fetchCart();
+  }, []);
 
 
+  // -------------------------
+  // DELETE (backend sync)
+  // -------------------------
+  const handleDelete = async (productId: number) => {
+    await fetch(`${API}/cart/items/${productId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
+    });
 
-export default function CartPage()
-{
-  const [cartItems, dispatch] = useReducer(cartReducer, [
-    { id: 1, name: "Item A", quantity: 1, price: 12.00, stockQuantity: 5 },
-    { id: 2, name: "Item B", quantity: 2, price: 8.50, stockQuantity: 10 }
-  ]);
+    setCartItems(prev =>
+      prev.filter(item => item.id !== productId)
+    );
+  };
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  // -------------------------
+  // UPDATE QTY (backend sync)
+  // -------------------------
+  const handleUpdate = async (productId: number, quantity: number) => {
+   // console.log("UPDATE CALL:", productId, typeof productId);
+    await fetch(`${API}/cart/item`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({
+        productId,
+        quantity
+      })
+    });
+
+
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === productId
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  };
+
+  // -------------------------
+  // YOUR ORIGINAL CALCULATIONS (UNCHANGED)
+  // -------------------------
+const subtotal = cartItems.reduce(
+  (sum, item) => sum + item.price * item.quantity,
+  0
+);
 
   const totalItems = cartItems.reduce(
     (sum, item) => sum + item.quantity,
@@ -65,22 +97,22 @@ export default function CartPage()
       <NavBar />
 
       <div className={styles.container}>
-        {/* LEFT */}
         <div className={styles.left}>
           <h2 className={styles.title}>Shopping Bag</h2>
 
           <div className={styles.tabs}>
-            <span className={styles.activeTab}>In Bag ({cartItems.length})</span>
+            <span className={styles.activeTab}>
+              In Bag ({cartItems.length})
+            </span>
           </div>
-
-
 
           {cartItems.map(item => (
             <div key={item.id} className={styles.cartItem}>
 
-              {/* LEFT */}
               <div className={styles.itemDetails}>
-                <div className={styles.itemName}>{item.name}</div>
+                <div className={styles.itemName}>
+                  {item.name}
+                </div>
 
                 <div className={styles.priceRow}>
                   <span className={styles.oldPrice}>
@@ -89,59 +121,43 @@ export default function CartPage()
                 </div>
 
                 <div className={styles.actions}>
-                  <span><button
-
-                    onClick={() =>
-                    {
-                      console.log("deleting", item.id); // 👈 keep this to verify
-                      dispatch({ type: "DELETE_ITEM", payload: item.id });
-                    }}
+                  <button
+                    onClick={() => handleDelete(item.id)}
                   >
                     Delete
                   </button>
-                  </span>
                 </div>
-
               </div>
 
-              {/* RIGHT (GROUPED) */}
-              <div className={styles.itemRight}>
-
-
-
+              <div >
                 <div className={styles.controls}>
-                  <p>Quantity</p>
+                  <p>Quantity: {item.quantity}</p>
 
                   <select
-                    className={styles.select}
                     value={item.quantity}
                     onChange={(e) =>
-                      dispatch({
-                        type: "UPDATE_QUANTITY",
-                        payload: {
-                          id: item.id,
-                          quantity: Number(e.target.value)
-                        }
-                      })
+                      handleUpdate(
+                        item.id,
+                        Number(e.target.value)
+                      )
                     }
                   >
-                    {[...Array(item.stockQuantity)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {i + 1}
+                    {Array.from(
+                      { length: item.stockQuantity },
+                      (_, i) => i + 1
+                    ).map(num => (
+                      <option key={num} value={num}>
+                        {num}
                       </option>
                     ))}
                   </select>
                 </div>
-
               </div>
+
             </div>
           ))}
         </div>
 
-
-
-
-        {/* RIGHT */}
         <div className={styles.right}>
           <h3 className={styles.summaryTitle}>Order Summary</h3>
 
@@ -150,16 +166,9 @@ export default function CartPage()
             <span>{totalItems}</span>
           </div>
 
-          {/*
-          <div className={styles.summaryRow}>
-            <span>Promotions</span>
-            <span>$0</span>
-          </div>
-          */}
-
           <div className={styles.summaryRow}>
             <strong>Subtotal</strong>
-            <strong><span>${subtotal.toFixed(2)}</span></strong>
+            <strong>${subtotal.toFixed(2)}</strong>
           </div>
 
           <button className={styles.checkoutBtn}>
@@ -167,7 +176,6 @@ export default function CartPage()
           </button>
         </div>
       </div>
-
     </div>
   );
 }
